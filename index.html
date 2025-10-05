@@ -1,0 +1,340 @@
+<!--
+Deployable single-file website for a holiday home in Lenk im Simmental
+How to use:
+ 1) Save this file as index.html
+ 2) Replace placeholder images (assets/) and text content (search for REPLACE_...) with your own
+ 3) Edit the metadata (title, description, contact info, Impressum)
+ 4) Upload to GitHub Pages / Netlify / any static host
+
+Features included:
+ - Responsive layout (Tailwind Play CDN)
+ - Hero gallery + lightbox
+ - Availability calendar (flatpickr)
+ - Booking / inquiry form (placeholder Formspree endpoint)
+ - Google Maps embed placeholder
+ - JSON-LD structured data for a VacationRental
+ - SEO meta tags and Open Graph
+ - Multilingual toggle (simple JS-driven content swap)
+ - Legal pages modal placeholders (Impressum, Privacy)
+ - Performance best-practices comments
+
+Notes:
+ - This is a single-file starter. For production, split CSS/JS, optimize images, add server-side booking or integration with Airbnb/Booking.com.
+ - You will need to add your Google Maps API key if you want an interactive map instead of the iframe.
+-->
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REPLACE_TITLE — Holiday home in Lenk im Simmental</title>
+  <meta name="description" content="REPLACE_META — Charming holiday home in Lenk im Simmental. Short-term seasonal rentals. Skiing, hiking, great views.">
+  <meta name="keywords" content="Ferienwohnung Lenk, Ferienhaus Lenk, Simmental, holiday home Lenk, short term rental Switzerland">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="REPLACE_TITLE — Holiday home in Lenk">
+  <meta property="og:description" content="REPLACE_META">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Tailwind via CDN for quick styling (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Flatpickr for calendar -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Simple lightbox CSS/JS (GLightbox) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* small extra styles */
+    .hero {
+      height: 70vh;
+      min-height: 380px;
+    }
+    @media (min-width: 1024px){ .hero { height: 80vh } }
+    .gradient-hero { background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.25)); }
+  </style>
+
+  <!-- JSON-LD structured data for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LodgingBusiness",
+    "name": "REPLACE_TITLE",
+    "description": "REPLACE_META",
+    "image": ["https://your-site.example/assets/photo1.jpg"],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Lenk im Simmental",
+      "addressCountry": "CH"
+    },
+    "telephone": "REPLACE_PHONE",
+    "url": "https://your-domain.example",
+    "priceRange": "€€",
+    "amenityFeature": [
+      {"@type":"LocationFeatureSpecification","name":"Wi-Fi"},
+      {"@type":"LocationFeatureSpecification","name":"Sauna"}
+    ],
+    "aggregateRating": {"@type":"AggregateRating","ratingValue":4.9,"reviewCount":27}
+  }
+  </script>
+
+</head>
+<body class="bg-gray-50 text-gray-800 leading-relaxed">
+
+  <!-- HEADER -->
+  <header class="bg-white shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <a href="#" class="flex items-center gap-3 text-xl font-semibold">
+          <img src="assets/logo.png" alt="logo" class="h-10 w-10 rounded-md object-cover"> 
+          <span>REPLACE_TITLE</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-6">
+          <a href="#about" class="hover:underline">About</a>
+          <a href="#gallery" class="hover:underline">Gallery</a>
+          <a href="#availability" class="hover:underline">Availability</a>
+          <a href="#location" class="hover:underline">Location</a>
+          <a href="#contact" class="text-white bg-sky-600 px-4 py-2 rounded hover:bg-sky-700">Book / Contact</a>
+        </nav>
+        <div class="flex items-center gap-3">
+          <select id="lang" aria-label="Language" class="border rounded px-2 py-1" onchange="switchLang(this.value)">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+          </select>
+          <button class="md:hidden" id="mobileBtn" aria-label="menu" onclick="toggleMobile()"><i class="fa fa-bars"></i></button>
+        </div>
+      </div>
+    </div>
+    <!-- mobile menu -->
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4">
+      <a href="#about" class="block py-2">About</a>
+      <a href="#gallery" class="block py-2">Gallery</a>
+      <a href="#availability" class="block py-2">Availability</a>
+      <a href="#location" class="block py-2">Location</a>
+      <a href="#contact" class="block py-2 text-white bg-sky-600 px-4 py-2 rounded inline-block mt-2">Book / Contact</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero relative bg-cover bg-center gradient-hero" style="background-image: url('assets/hero.jpg')" aria-label="Hero">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-black/10"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+      <div class="relative z-10 text-white max-w-2xl py-12">
+        <h1 id="title-de" class="text-3xl sm:text-4xl lg:text-5xl font-bold">REPLACE_TITLE — Ferienhaus in Lenk im Simmental</h1>
+        <h1 id="title-en" class="hidden text-3xl sm:text-4xl lg:text-5xl font-bold">REPLACE_TITLE — Holiday home in Lenk im Simmental</h1>
+        <p id="tagline-de" class="mt-4 text-lg">Perfekt für Skiferien, Wanderferien und Familienurlaube. Direkt bei den Pisten und Wanderwegen.</p>
+        <p id="tagline-en" class="hidden mt-4 text-lg">Perfect for ski trips, hiking and family holidays. Close to lifts and trails.</p>
+        <div class="mt-6 flex gap-3">
+          <a href="#availability" class="bg-white text-sky-700 px-4 py-2 rounded font-semibold shadow">Check Availability</a>
+          <a href="#gallery" class="border border-white px-4 py-2 rounded">View Photos</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- ABOUT / DETAILS -->
+    <section id="about" class="grid lg:grid-cols-2 gap-8 items-start">
+      <div>
+        <h2 class="text-2xl font-semibold mb-3" id="about-title-de">Über die Unterkunft</h2>
+        <h2 class="hidden text-2xl font-semibold mb-3" id="about-title-en">About the property</h2>
+        <p id="about-text-de">REPLACE_DESCRIPTION_DE — Insert your description here. Mention sleeping arrangements, bathrooms, kitchen, unique features (sauna, fireplace, garden, parking).</p>
+        <p id="about-text-en" class="hidden">REPLACE_DESCRIPTION_EN — Insert your description here in English.</p>
+
+        <ul class="mt-6 grid grid-cols-2 gap-2">
+          <li class="flex items-center gap-2"><i class="fa-solid fa-bed"></i> 3 Bedrooms</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-bath"></i> 2 Bathrooms</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-wifi"></i> Wi‑Fi</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-car"></i> Free parking</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-fire"></i> Fireplace</li>
+          <li class="flex items-center gap-2"><i class="fa-solid fa-snowflake"></i> Ski storage</li>
+        </ul>
+
+        <div class="mt-6">
+          <h3 class="font-semibold">Pricing & seasons</h3>
+          <p class="text-sm text-gray-600">Use the calendar below to check seasonal rates. For long stays or last-minute deals contact us directly.</p>
+        </div>
+      </div>
+
+      <aside class="bg-white shadow rounded p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Starting at</p>
+            <p class="text-2xl font-bold">REPLACE_PRICE/night</p>
+            <p class="text-sm text-gray-500">(seasonal rates apply)</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm">Sleeps</p>
+            <p class="font-semibold">6 guests</p>
+          </div>
+        </div>
+
+        <hr class="my-4">
+        <div>
+          <label for="date" class="block text-sm font-medium text-gray-700">Choose dates</label>
+          <input id="date" placeholder="Select check-in / check-out" class="mt-1 block w-full rounded border-gray-300" readonly>
+        </div>
+        <button onclick="scrollToContact()" class="mt-4 w-full bg-sky-600 text-white py-2 rounded font-semibold">Request booking</button>
+      </aside>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="mt-16">
+      <h2 class="text-2xl font-semibold mb-4">Gallery</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- Replace image paths with your own -->
+        <a href="assets/photo1.jpg" class="glightbox" data-glightbox="title: Living room"><img src="assets/photo1-thumb.jpg" alt="Living" class="w-full h-40 object-cover rounded"></a>
+        <a href="assets/photo2.jpg" class="glightbox" data-glightbox="title: Kitchen"><img src="assets/photo2-thumb.jpg" alt="Kitchen" class="w-full h-40 object-cover rounded"></a>
+        <a href="assets/photo3.jpg" class="glightbox" data-glightbox="title: Bedroom"><img src="assets/photo3-thumb.jpg" alt="Bedroom" class="w-full h-40 object-cover rounded"></a>
+        <a href="assets/photo4.jpg" class="glightbox" data-glightbox="title: View"><img src="assets/photo4-thumb.jpg" alt="View" class="w-full h-40 object-cover rounded"></a>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="mt-12">
+      <h2 class="text-2xl font-semibold mb-4">Guest reviews</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <blockquote class="bg-white p-4 shadow rounded">"Wunderbare Unterkunft, sehr sauber und nahe an den Pisten." <div class="mt-2 text-sm text-gray-500">— Anna, CH</div></blockquote>
+        <blockquote class="bg-white p-4 shadow rounded">"Lovely house, perfect for families." <div class="mt-2 text-sm text-gray-500">— Mark, UK</div></blockquote>
+        <blockquote class="bg-white p-4 shadow rounded">"Great location and host — would come back!" <div class="mt-2 text-sm text-gray-500">— Sophie, FR</div></blockquote>
+      </div>
+    </section>
+
+    <!-- LOCATION -->
+    <section id="location" class="mt-12 grid lg:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-2xl font-semibold">Location</h2>
+        <p class="mt-2 text-sm text-gray-600">REPLACE_LOCATION_TEXT — Add distances to lifts, train station, grocery and activities.</p>
+
+        <ul class="mt-4 text-sm space-y-1">
+          <li>• 1.5 km to the nearest ski lift</li>
+          <li>• 800 m to village centre</li>
+          <li>• Train connection to Bern (change at Zweisimmen)</li>
+        </ul>
+      </div>
+
+      <div>
+        <!-- Google Maps iframe (replace src with your own embed link) -->
+        <div class="w-full h-64 rounded overflow-hidden shadow">
+          <iframe class="w-full h-full" frameborder="0" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2795.548..." allowfullscreen="" loading="lazy"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT / BOOKING -->
+    <section id="contact" class="mt-12">
+      <h2 class="text-2xl font-semibold mb-4">Contact & Booking</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <form id="bookingForm" action="https://formspree.io/f/REPLACE_FORM_ID" method="POST" class="bg-white shadow rounded p-6">
+          <input type="hidden" name="_subject" value="Booking request from website">
+          <div class="grid grid-cols-1 gap-3">
+            <label class="text-sm">Name <input name="name" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+            <label class="text-sm">Email <input name="email" type="email" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+            <label class="text-sm">Phone <input name="phone" class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+            <label class="text-sm">Dates <input id="formDate" name="dates" class="mt-1 block w-full rounded border-gray-300 p-2" readonly></label>
+            <label class="text-sm">Message <textarea name="message" rows="4" class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea></label>
+            <div class="flex gap-3 items-center">
+              <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
+              <button type="button" onclick="clearForm()" class="px-4 py-2 border rounded">Clear</button>
+            </div>
+          </div>
+        </form>
+
+        <aside class="bg-white shadow rounded p-6">
+          <h3 class="font-semibold">Contact</h3>
+          <p class="text-sm mt-2">Phone: <a href="tel:REPLACE_PHONE">REPLACE_PHONE</a></p>
+          <p class="text-sm">Email: <a href="mailto:REPLACE_EMAIL">ssangam@gmail.com</a></p>
+          <div class="mt-4">
+            <h4 class="font-semibold">Booking policies</h4>
+            <p class="text-xs text-gray-600">Minimum stay: 2 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+      <div class="text-sm text-gray-600">© <span id="year"></span> REPLACE_TITLE — Lenk im Simmental</div>
+      <div class="flex items-center gap-4">
+        <a href="#" onclick="showLegal()">Impressum & Privacy</a>
+        <a href="#" class="text-gray-500"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="text-gray-500"><i class="fa-brands fa-facebook"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LEGAL MODAL -->
+  <div id="legalModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+    <div class="bg-white max-w-3xl w-full rounded shadow p-6 overflow-auto max-h-[80vh]">
+      <h3 class="text-xl font-semibold">Impressum & Privacy</h3>
+      <p class="text-sm mt-3">Impressum: REPLACE_IMPRESSUM_TEXT</p>
+      <p class="text-sm mt-2">Datenschutzerklärung: REPLACE_PRIVACY_TEXT</p>
+      <div class="mt-4 text-right"><button onclick="closeLegal()" class="px-4 py-2 border rounded">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Basic JS glue
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Lightbox init
+    const lightbox = GLightbox({ selector: '.glightbox' });
+
+    // Flatpickr for both mini sidebar and booking form
+    flatpickr('#date', {
+      mode: 'range',
+      minDate: 'today',
+      altInput: true,
+      altFormat: 'd.m.Y',
+      dateFormat: 'Y-m-d',
+      onChange: function(selectedDates, dateStr, instance){
+        document.getElementById('formDate').value = dateStr;
+      }
+    });
+    flatpickr('#formDate', { mode: 'range', altInput: true, altFormat: 'd.m.Y', dateFormat: 'Y-m-d' });
+
+    function scrollToContact(){ document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' }); }
+
+    function clearForm(){ document.getElementById('bookingForm').reset(); }
+
+    // Mobile nav
+    function toggleMobile(){ document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+    // Legal modal
+    function showLegal(){ document.getElementById('legalModal').classList.remove('hidden'); document.getElementById('legalModal').classList.add('flex'); }
+    function closeLegal(){ document.getElementById('legalModal').classList.add('hidden'); document.getElementById('legalModal').classList.remove('flex'); }
+
+    // Simple language switch (content prepared in de/en blocks)
+    function switchLang(lang){
+      const de = ['title-de','tagline-de','about-title-de','about-text-de'];
+      const en = ['title-en','tagline-en','about-title-en','about-text-en'];
+      de.forEach(id => { const el = document.getElementById(id); if(el) el.classList.toggle('hidden', lang!=='de'); });
+      en.forEach(id => { const el = document.getElementById(id); if(el) el.classList.toggle('hidden', lang!=='en'); });
+    }
+
+    // Simple client-side form submission note: you should integrate a backend or Formspree/Netlify Forms
+    document.getElementById('bookingForm').addEventListener('submit', function(e){
+      // you can add validation here; for now the form will POST to Formspree if you replace REPLACE_FORM_ID.
+      alert('Form submitted — replace the Formspree endpoint with your own or integrate a booking backend.');
+    });
+
+    // Accessibility: focus trap, skip links, etc. could be added for production.
+  </script>
+
+</body>
+</html>
