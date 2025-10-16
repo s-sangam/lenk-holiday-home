@@ -65,6 +65,16 @@ Notes:
     .gradient-hero { background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.25)); }
   </style>
 
+  <style>
+    .flatpickr-day.booked,
+    .flatpickr-day.booked:hover {
+      background-color: #fca5a5 !important; /* red-300 */
+      border-color: #f87171 !important; /* red-400 */
+      color: white !important;
+      cursor: not-allowed !important;
+    }
+  </style>
+
   <!-- JSON-LD structured data for SEO -->
   <script type="application/ld+json">
   {
@@ -87,6 +97,35 @@ Notes:
     ],
     "aggregateRating": {"@type":"AggregateRating","ratingValue":4.9,"reviewCount":27}
   }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bookedRanges = [
+        { from: "2025-10-10", to: "2025-10-15" },
+        { from: "2025-10-25", to: "2025-10-28" },
+        { from: "2025-11-05", to: "2025-11-10" },
+      ];
+  
+      flatpickr("#availabilityCalendar", {
+        mode: "range",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        disable: bookedRanges.map(r => ({ from: r.from, to: r.to })),
+        onDayCreate: function (dObj, dStr, fp, dayElem) {
+          const date = dayElem.dateObj;
+          const isoDate = date.toISOString().slice(0, 10);
+          const isBooked = bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to);
+          if (isBooked) dayElem.classList.add("booked");
+        },
+      });
+      
+      // Smooth scroll "Book Now" button
+      document.getElementById("bookNowBtn").addEventListener("click", function () {
+        document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
+      });
+
+    });
   </script>
 
 </head>
@@ -272,7 +311,32 @@ Notes:
       </aside>
     </section>
 
+    <!-- AVAILABILITY CALENDAR -->
+    <section id="availability" class="mt-20 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-semibold mb-4 text-center sm:text-left">Availability</h2>
+      <p class="text-gray-600 mb-6 text-center sm:text-left">
+        Check available dates for your stay. Booked dates are shown in <span class="text-red-600 font-semibold">red</span>.
+      </p>
 
+      <!-- Calendar container -->
+      <div class="bg-white rounded-xl shadow p-6 mb-8">
+        <input
+          id="availabilityCalendar"
+          class="border border-gray-300 rounded-lg w-full p-2 text-gray-800 focus:ring-sky-500 focus:border-sky-500"
+          placeholder="View availability"
+          readonly
+        />
+      </div>
+
+      <!-- Smooth scroll button -->
+      <div class="text-center mb-8">
+        <button id="bookNowBtn"
+          class="bg-sky-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-sky-600 transition">
+          Book Now
+        </button>
+      </div>
+
+    </section>
 
     <!-- REVIEWS -->
     <section id="reviews" class="mt-12">
