@@ -127,23 +127,7 @@ Notes:
   </header>
 
   <!-- HERO -->
-   <!-- commented out temporarily to improve better rendering in mobile apps
-  <section class="hero relative bg-cover bg-center gradient-hero" style="background-image: url('assets/Chalet_strubel.jpeg')" aria-label="Hero">
-    <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-black/10"></div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-      <div class="relative z-10 text-white max-w-2xl py-12">
-        <h1 id="title-de" class="text-3xl sm:text-4xl lg:text-5xl font-bold">Ferienhaus in Lenk im Simmental</h1>
-        <h1 id="title-en" class="hidden text-3xl sm:text-4xl lg:text-5xl font-bold">Holiday home in Lenk im Simmental</h1>
-        <p id="tagline-de" class="mt-4 text-lg">Perfekt für Skiferien, Wanderferien und Familienurlaube. Direkt bei den Pisten und Wanderwegen.</p>
-        <p id="tagline-en" class="hidden mt-4 text-lg">Perfect for ski trips, hiking and family holidays. Close to lifts and trails.</p>
-        <div class="mt-6 flex gap-3">
-          <a href="#availability" class="bg-white text-sky-700 px-4 py-2 rounded font-semibold shadow">Check Availability</a>
-          <a href="#gallery" class="border border-white px-4 py-2 rounded">View Photos</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  -->
+   
   <section
   class="hero relative bg-center bg-no-repeat bg-cover sm:bg-cover bg-contain sm:bg-cover min-h-[70vh] flex items-center justify-center"
   style="background-image: url('assets/Chalet_strubel.jpeg');"
@@ -164,16 +148,44 @@ Notes:
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
     <!-- GALLERY -->
-    <section id="gallery" class="mt-16">
-      <h2 class="text-2xl font-semibold mb-4">Gallery</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <!-- Replace image paths with your own -->
-        <a href="assets/wildstrubel.jpeg" class="glightbox" data-glightbox="title: View from Balcony"><img src="assets/thumbnails/thumb_wildstrubel.jpeg" alt="Mountains" class="w-full h-40 object-cover rounded"></a>
-        <a href="assets/Bedroom_1.jpeg" class="glightbox" data-glightbox="title: Bedroom 1"><img src="assets/thumbnails/thumb_Bedroom_1.jpeg" alt="Sleeping room" class="w-full h-40 object-cover rounded"></a>
-        <a href="assets/photo3.jpg" class="glightbox" data-glightbox="title: Bedroom"><img src="assets/photo3-thumb.jpg" alt="Bedroom" class="w-full h-40 object-cover rounded"></a>
-        <a href="assets/photo4.jpg" class="glightbox" data-glightbox="title: View"><img src="assets/photo4-thumb.jpg" alt="View" class="w-full h-40 object-cover rounded"></a>
+    <section id="gallery" class="mt-16 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-semibold mb-6 text-center sm:text-left">Gallery</h2>
+    
+      <!-- Grid of Thumbnails -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
+        <!-- Replace image paths and captions with your own -->
+        <a href="assets/wildstrubel.jpeg" class="glightbox" data-gallery="chalet-gallery" data-glightbox="title: View from Balcony">
+          <img src="assets/thumbnails/thumb_wildstrubel.jpeg" alt="View from Balcony" loading="lazy"
+            class="w-full aspect-square object-cover rounded-lg shadow-sm hover:opacity-90 transition" />
+        </a>
+    
+        <a href="assets/Bedroom_1.jpeg" class="glightbox" data-gallery="chalet-gallery" data-glightbox="title: Bedroom 1">
+          <img src="assets/thumbnails/thumb_Bedroom_1.jpeg" alt="Bedroom 1" loading="lazy"
+            class="w-full aspect-square object-cover rounded-lg shadow-sm hover:opacity-90 transition" />
+        </a>
+    
+        <a href="assets/photo3.jpg" class="glightbox" data-gallery="chalet-gallery" data-glightbox="title: Bedroom 2">
+          <img src="assets/photo3-thumb.jpg" alt="Bedroom 2" loading="lazy"
+            class="w-full aspect-square object-cover rounded-lg shadow-sm hover:opacity-90 transition" />
+        </a>
+    
+        <a href="assets/photo4.jpg" class="glightbox" data-gallery="chalet-gallery" data-glightbox="title: View from Living Room">
+          <img src="assets/photo4-thumb.jpg" alt="View from Living Room" loading="lazy"
+            class="w-full aspect-square object-cover rounded-lg shadow-sm hover:opacity-90 transition" />
+        </a>
+    
+        <!-- Add more images as needed -->
+      </div>
+    
+      <!-- View All Photos Button -->
+      <div class="mt-6 text-center">
+        <button id="viewAllPhotosBtn"
+          class="bg-sky-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-sky-600 transition">
+          View All Photos
+        </button>
       </div>
     </section>
+    
 
     <!-- ABOUT / DETAILS -->
     <section id="about" class="grid lg:grid-cols-2 gap-8 items-start">
@@ -410,6 +422,24 @@ Notes:
         document.getElementById('bookingForm').style.display = 'block';
         clearForm();
     }
+    // Lightbox Initialization
+    document.addEventListener("DOMContentLoaded", function () {
+      const lightbox = GLightbox({
+        selector: ".glightbox",
+        touchNavigation: true,
+        loop: true,
+        zoomable: true,
+        autoplayVideos: false,
+      });
+
+      // "View All Photos" button triggers first image
+      document.getElementById("viewAllPhotosBtn").addEventListener("click", () => {
+        const firstImage = document.querySelector(".glightbox");
+        if (firstImage) {
+          firstImage.click(); // opens lightbox starting from first image
+        }
+      });
+    });
   </script>
 
 </body>
