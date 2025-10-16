@@ -10,7 +10,7 @@ Features included:
  - Responsive layout (Tailwind Play CDN)
  - Hero gallery + lightbox
  - Availability calendar (flatpickr)
- - Booking / inquiry form (placeholder Formspree endpoint)
+ - Booking / inquiry form (Google Forms endpoint)
  - Google Maps embed placeholder
  - JSON-LD structured data for a VacationRental
  - SEO meta tags and Open Graph
@@ -243,11 +243,27 @@ Notes:
       </div>
     </section>
 
-    <!-- CONTACT / BOOKING -->
+    <!-- Reservation Inquiry -->
     <section id="contact" class="mt-12">
       <h2 class="text-2xl font-semibold mb-4">Contact & Booking</h2>
       <div class="grid md:grid-cols-2 gap-6">
-        <form id="bookingForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse" method="POST" class="bg-white shadow rounded p-6">
+        <!-- hidden iframe to maks google form response -->
+        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="handleFormSubmission()"></iframe>
+        
+        <div id="form-column"> <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow" style="display:none;">
+          <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
+          <p>Thank you for your reservation inquiry. We'll get back to you within 24 hours.</p>
+          <button type="button" onclick="resetForm()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded">New Request</button>
+        </div>
+        
+        <!-- submit form to Google Forms-->
+        <form 
+          id="bookingForm" 
+          action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse" 
+          method="POST" 
+          class="bg-white shadow rounded p-6"
+          target="hidden_iframe"
+          onsubmit="submitted=true; document.getElementById('bookingForm').style.display = 'none'; return true;">
           <input type="hidden" name="_subject" value="Reservation Inquiry for Chalet Strubel, Lenk">
           <div class="grid grid-cols-1 gap-3">
             <label class="text-sm">Name <input name="entry.1050908070" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
@@ -339,11 +355,41 @@ Notes:
 
     // Simple client-side form submission note: you should integrate a backend or Formspree/Netlify Forms
     document.getElementById('bookingForm').addEventListener('submit', function(e){
-      // you can add validation here; for now the form will POST to Formspree if you replace REPLACE_FORM_ID.
-      alert('Form submitted — replace the Formspree endpoint with your own or integrate a booking backend.');
+      // you can add validation here.
+      alert('Form submitted to google forms');
     });
 
     // Accessibility: focus trap, skip links, etc. could be added for production.
+  
+   <!-- javascript function to handle and ide google form response -->
+   var submitted = false;
+
+    // This function is called when the hidden iframe finishes loading (i.e., form submits)
+    function handleFormSubmission() {
+        if (submitted) {
+            // 1. Hide the form
+            document.getElementById('bookingForm').style.display = 'none';
+
+            // 2. Show the thank you message
+            document.getElementById('thank-you-message').style.display = 'block';
+
+            // 3. Reset the flag
+            submitted = false;
+        }
+    }
+
+    // Function to clear the form (existing functionality)
+    function clearForm() {
+        document.getElementById('bookingForm').reset();
+        // You might also need to clear the #formDate field if it's set by external JS
+    }
+
+    // Function to show the form again if the user clicks "New Request"
+    function resetForm() {
+        document.getElementById('thank-you-message').style.display = 'none';
+        document.getElementById('bookingForm').style.display = 'block';
+        clearForm();
+    }
   </script>
 
 </body>
