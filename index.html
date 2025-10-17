@@ -358,81 +358,75 @@ Notes:
       </div>
     </section>
     
-    <!-- AVAILABILITY CALENDAR -->
-    <section id="availability" class="mt-20 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="text-2xl font-semibold mb-4 text-center sm:text-left">Availability</h2>
-      <p class="text-gray-600 mb-6 text-center sm:text-left">
+    <!-- AVAILABILITY + BOOKING SIDE BY SIDE -->
+    <section id="availability-booking" class="mt-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-semibold mb-4 text-center sm:text-left">Availability & Booking</h2>
+      <p class="text-gray-600 mb-8 text-center sm:text-left">
         Busy dates are shown in <span class="text-red-600 font-semibold">red</span>,
         available dates in <span class="text-green-600 font-semibold">green</span>.
       </p>
-    
-      <!-- Calendar container -->
-      <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-        <div id="availabilityCalendar" class="flatpickr-calendar-wrapper"></div>
-    
-        <!-- Legend -->
-        <div class="flex justify-center gap-6 mt-6 text-sm text-gray-700">
-          <div class="flex items-center gap-2">
-            <span class="w-4 h-4 bg-red-400 rounded"></span> Busy
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-4 h-4 bg-green-300 rounded border border-green-400"></span> Available
-          </div>
-        </div>
-      </div>
-    
-      <!-- Book Now Button -->
-      <div class="text-center mt-6">
-        <button id="bookNowBtn"
-          class="bg-sky-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-sky-600 transition">
-          Book Now
-        </button>
-      </div>
-    </section>
 
+      <!-- Two-column grid -->
+      <div class="grid lg:grid-cols-2 gap-10">
+        <!-- LEFT: Availability Calendar -->
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+          <div id="availabilityCalendar" class="flatpickr-calendar-wrapper"></div>
 
-    <!-- Reservation Inquiry -->
-    <section id="booking" class="mt-12">
-      <h2 class="text-2xl font-semibold mb-4">Booking</h2>
-      <div class="grid md:grid-cols-2 gap-6">
-        <!-- hidden iframe to maks google form response -->
-        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="handleFormSubmission()"></iframe>
-        
-        <div id="form-column"> <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow" style="display:none;">
-          <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
-          <p>Thank you for your reservation inquiry. We'll get back to you within 24 hours.</p>
-          <button type="button" onclick="resetForm()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded">New Request</button>
-        </div>
-        
-        <!-- submit form to Google Forms-->
-        <form 
-          id="bookingForm" 
-          action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse" 
-          method="POST" 
-          class="bg-white shadow rounded p-6"
-          target="hidden_iframe"
-          onsubmit="submitted=true; document.getElementById('bookingForm').style.display = 'none'; return true;">
-          <input type="hidden" name="_subject" value="Reservation Inquiry for Chalet Strubel, Lenk">
-          <div class="grid grid-cols-1 gap-3">
-            <label class="text-sm">Name <input name="entry.1050908070" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
-            <label class="text-sm">Email <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
-            <label class="text-sm">Phone <input name="entry.569286279" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
-            <label class="text-sm">Dates <input name="entry.1408509440" id="formDate" required name="dates" class="mt-1 block w-full rounded border-gray-300 p-2" readonly></label>
-            <label class="text-sm">Message <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea></label>
-            <div class="flex gap-3 items-center">
-              <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
-              <button type="button" onclick="clearForm()" class="px-4 py-2 border rounded">Clear</button>
+          <!-- Legend -->
+          <div class="flex justify-center gap-6 mt-6 text-sm text-gray-700 w-full">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 bg-red-400 rounded"></span> Busy
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 bg-green-300 rounded border border-green-400"></span> Available
             </div>
           </div>
-        </form>
 
-        <aside class="bg-white shadow rounded p-6">
-          
-          <div class="mt-4">
-            <h4 class="font-semibold">Booking policies</h4>
-            <p class="text-xs text-gray-600">Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.</p>
+          <!-- Book Now Button -->
+          <div class="text-center mt-6">
+            <button id="bookNowBtn"
+              class="bg-sky-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-sky-600 transition">
+              Book Now
+            </button>
           </div>
-        </aside>
+        </div>
+
+        <!-- RIGHT: Booking Form -->
+        <div id="booking" class="bg-white shadow rounded p-6 flex flex-col justify-between">
+          <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow mb-6" style="display:none;">
+            <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
+            <p>Thank you for your reservation inquiry. We'll get back to you within 24 hours.</p>
+            <button type="button" onclick="resetForm()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded">New Request</button>
+          </div>
+
+          <form 
+            id="bookingForm"
+            action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse"
+            method="POST"
+            target="hidden_iframe"
+            onsubmit="submitted=true; document.getElementById('bookingForm').style.display='none'; return true;"
+          >
+            <input type="hidden" name="_subject" value="Reservation Inquiry for Chalet Strubel, Lenk">
+            <div class="grid grid-cols-1 gap-3">
+              <label class="text-sm">Name <input name="entry.1050908070" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+              <label class="text-sm">Email <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+              <label class="text-sm">Phone <input name="entry.569286279" required class="mt-1 block w-full rounded border-gray-300 p-2"></label>
+              <label class="text-sm">Dates <input name="entry.1408509440" id="formDate" required class="mt-1 block w-full rounded border-gray-300 p-2" readonly></label>
+              <label class="text-sm">Message <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea></label>
+              <div class="flex gap-3 items-center">
+                <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
+                <button type="button" onclick="clearForm()" class="px-4 py-2 border rounded">Clear</button>
+              </div>
+            </div>
+          </form>
+
+          <aside class="mt-6">
+            <h4 class="font-semibold">Booking policies</h4>
+            <p class="text-xs text-gray-600 mt-2">
+              Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.
+            </p>
+          </aside>
+        </div>
       </div>
     </section>
 
