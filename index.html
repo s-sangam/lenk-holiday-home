@@ -99,34 +99,7 @@ Notes:
   }
   </script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const bookedRanges = [
-        { from: "2025-10-10", to: "2025-10-15" },
-        { from: "2025-10-25", to: "2025-10-28" },
-        { from: "2025-11-05", to: "2025-11-10" },
-      ];
   
-      flatpickr("#availabilityCalendar", {
-        mode: "range",
-        minDate: "today",
-        dateFormat: "Y-m-d",
-        disable: bookedRanges.map(r => ({ from: r.from, to: r.to })),
-        onDayCreate: function (dObj, dStr, fp, dayElem) {
-          const date = dayElem.dateObj;
-          const isoDate = date.toISOString().slice(0, 10);
-          const isBooked = bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to);
-          if (isBooked) dayElem.classList.add("booked");
-        },
-      });
-      
-      // Smooth scroll "Book Now" button
-      document.getElementById("bookNowBtn").addEventListener("click", function () {
-        document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
-      });
-
-    });
-  </script>
 
 </head>
 <body class="bg-gray-50 text-gray-800 leading-relaxed">
@@ -338,15 +311,6 @@ Notes:
 
     </section>
 
-    <!-- REVIEWS -->
-    <section id="reviews" class="mt-12">
-      <h2 class="text-2xl font-semibold mb-4">Guest reviews</h2>
-      <div class="grid md:grid-cols-3 gap-4">
-        <blockquote class="bg-white p-4 shadow rounded">"Wunderbare Unterkunft, sehr sauber und nahe an den Pisten." <div class="mt-2 text-sm text-gray-500">— Anna, CH</div></blockquote>
-        <blockquote class="bg-white p-4 shadow rounded">"Lovely house, perfect for families." <div class="mt-2 text-sm text-gray-500">— Mark, UK</div></blockquote>
-        <blockquote class="bg-white p-4 shadow rounded">"Great location and host — would come back!" <div class="mt-2 text-sm text-gray-500">— Sophie, FR</div></blockquote>
-      </div>
-    </section>
 
     <!-- LOCATION -->
     <section id="location" class="mt-12 grid lg:grid-cols-2 gap-8">
@@ -415,14 +379,43 @@ Notes:
         </form>
 
         <aside class="bg-white shadow rounded p-6">
-          <h3 class="font-semibold">Contact</h3>
-          <p class="text-sm mt-2">Phone: <a href="tel:REPLACE_PHONE">REPLACE_PHONE</a></p>
-          <p class="text-sm">Email: <a href="mailto:REPLACE_EMAIL">ssangam@gmail.com</a></p>
+          
           <div class="mt-4">
             <h4 class="font-semibold">Booking policies</h4>
-            <p class="text-xs text-gray-600">Minimum stay: 2 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.</p>
+            <p class="text-xs text-gray-600">Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.</p>
           </div>
         </aside>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="mt-12">
+      <h2 class="text-2xl font-semibold mb-4">Guest reviews</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <blockquote class="bg-white p-4 shadow rounded">"Wunderbare Unterkunft, sehr sauber und nahe an den Pisten." <div class="mt-2 text-sm text-gray-500">— Anna, CH</div></blockquote>
+        <blockquote class="bg-white p-4 shadow rounded">"Lovely house, perfect for families." <div class="mt-2 text-sm text-gray-500">— Mark, UK</div></blockquote>
+        <blockquote class="bg-white p-4 shadow rounded">"Great location and host — would come back!" <div class="mt-2 text-sm text-gray-500">— Sophie, FR</div></blockquote>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="mt-20 bg-white py-12 px-6 shadow-inner">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-2xl font-semibold mb-4">Contact</h2>
+        <p class="text-gray-700 mb-6">
+          We’d love to hear from you! Reach out for any questions about availability, bookings, or your stay in Lenk im Simmental.
+        </p>
+
+        <div class="space-y-3 text-lg">
+          <p>
+            📞  <strong>Phone:</strong>
+            <a href="tel:+41XXXXXXXXX" class="text-sky-700 hover:underline">+41 XX XXX XX XX</a>
+          </p>
+          <p>
+            📧 <strong>Email:</strong>
+            <a href="mailto:ssangam@gmail.com" class="text-sky-700 hover:underline">ssangam@gmail.com</a>
+          </p>
+        </div>
       </div>
     </section>
 
@@ -543,6 +536,35 @@ Notes:
           firstImage.click(); // opens lightbox starting from first image
         }
       });
+    });
+  </script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bookedRanges = [
+        { from: "2025-10-10", to: "2025-10-15" },
+        { from: "2025-10-25", to: "2025-10-28" },
+        { from: "2025-11-05", to: "2025-11-10" },
+      ];
+  
+      flatpickr("#availabilityCalendar", {
+        mode: "range",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        disable: bookedRanges.map(r => ({ from: r.from, to: r.to })),
+        onDayCreate: function (dObj, dStr, fp, dayElem) {
+          const date = dayElem.dateObj;
+          const isoDate = date.toISOString().slice(0, 10);
+          const isBooked = bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to);
+          if (isBooked) dayElem.classList.add("booked");
+        },
+      });
+      
+      // Smooth scroll "Book Now" button
+      document.getElementById("bookNowBtn").addEventListener("click", function () {
+        document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
+      });
+
     });
   </script>
 
