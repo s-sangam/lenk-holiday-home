@@ -66,32 +66,34 @@ Notes:
   </style>
 
   <style>
-    /* Refined flatpickr look */
+    /* Refined flatpickr colors */
     .flatpickr-day.booked,
     .flatpickr-day.booked:hover {
-      background-color: #d1d5db !important;
-      /* gray-300 */
-      color: #9ca3af !important;
-      /* gray-400 */
+      background-color: #f87171 !important; /* red-400 */
+      color: white !important;
       cursor: not-allowed !important;
+      border-radius: 6px !important;
+    }
+
+    .flatpickr-day:not(.booked):not(.disabled):hover {
+      background-color: #bbf7d0 !important; /* green-200 */
+      color: #166534 !important; /* green-800 */
     }
 
     .flatpickr-day.selected,
     .flatpickr-day.startRange,
     .flatpickr-day.endRange {
-      background-color: #93c5fd !important;
-      /* blue-300 */
-      color: #1e3a8a !important;
-      /* blue-900 */
+      background-color: #4ade80 !important; /* green-400 */
+      color: #14532d !important;
       border: none !important;
+      border-radius: 6px !important;
     }
 
     .flatpickr-day.inRange {
-      background-color: #bfdbfe !important;
-      /* lighter blue */
+      background-color: #86efac !important; /* green-300 */
     }
 
-    /* Make calendar visible inline */
+    /* Always show calendar inline */
     .flatpickr-calendar {
       position: relative !important;
       opacity: 1 !important;
@@ -105,6 +107,7 @@ Notes:
       margin: 0 auto;
     }
   </style>
+
  
 
   <!-- JSON-LD structured data for SEO -->
@@ -353,20 +356,21 @@ Notes:
     <section id="availability" class="mt-20 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 class="text-2xl font-semibold mb-4 text-center sm:text-left">Availability</h2>
       <p class="text-gray-600 mb-6 text-center sm:text-left">
-        Select your desired dates below. Booked periods are shaded in gray.
+        Choose your preferred dates. Busy dates are marked in <span class="text-red-600 font-semibold">red</span>,
+        available dates in <span class="text-green-600 font-semibold">green</span>.
       </p>
     
       <!-- Calendar container -->
-      <div class="bg-white rounded-xl shadow p-6 mb-4">
+      <div class="bg-white rounded-xl shadow p-6 mb-6">
         <div id="availabilityCalendar" class="flatpickr-calendar-wrapper w-full"></div>
     
-        <!-- Legend -->
-        <div class="flex justify-center gap-6 mt-4 text-sm text-gray-600">
+        <!-- Legend (centered below calendar) -->
+        <div class="flex justify-center gap-6 mt-6 text-sm text-gray-700">
           <div class="flex items-center gap-2">
-            <span class="w-4 h-4 bg-gray-300 rounded"></span> Booked
+            <span class="w-4 h-4 bg-red-400 rounded"></span> Busy
           </div>
           <div class="flex items-center gap-2">
-            <span class="w-4 h-4 bg-blue-200 rounded"></span> Available
+            <span class="w-4 h-4 bg-green-400 rounded"></span> Available
           </div>
         </div>
       </div>
@@ -579,14 +583,16 @@ Notes:
   
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      // Define booked date ranges
       const bookedRanges = [
         { from: "2025-10-10", to: "2025-10-15" },
         { from: "2025-10-25", to: "2025-10-28" },
         { from: "2025-11-05", to: "2025-11-10" },
       ];
   
+      // Initialize flatpickr with booked/available colors
       flatpickr("#availabilityCalendar", {
-        inline: true, // always visible calendar
+        inline: true,
         mode: "range",
         minDate: "today",
         dateFormat: "Y-m-d",
@@ -600,7 +606,7 @@ Notes:
         },
       });
   
-      // Smooth scroll to booking section
+      // Smooth scroll to booking form
       document.getElementById("bookNowBtn").addEventListener("click", function () {
         document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
       });
