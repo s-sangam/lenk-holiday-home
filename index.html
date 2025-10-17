@@ -66,14 +66,46 @@ Notes:
   </style>
 
   <style>
+    /* Refined flatpickr look */
     .flatpickr-day.booked,
     .flatpickr-day.booked:hover {
-      background-color: #fca5a5 !important; /* red-300 */
-      border-color: #f87171 !important; /* red-400 */
-      color: white !important;
+      background-color: #d1d5db !important;
+      /* gray-300 */
+      color: #9ca3af !important;
+      /* gray-400 */
       cursor: not-allowed !important;
     }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background-color: #93c5fd !important;
+      /* blue-300 */
+      color: #1e3a8a !important;
+      /* blue-900 */
+      border: none !important;
+    }
+
+    .flatpickr-day.inRange {
+      background-color: #bfdbfe !important;
+      /* lighter blue */
+    }
+
+    /* Make calendar visible inline */
+    .flatpickr-calendar {
+      position: relative !important;
+      opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    .flatpickr-calendar-wrapper {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
   </style>
+ 
 
   <!-- JSON-LD structured data for SEO -->
   <script type="application/ld+json">
@@ -318,30 +350,33 @@ Notes:
     </section>
     
     <!-- AVAILABILITY CALENDAR -->
-    <section id="availability" class="mt-20 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="availability" class="mt-20 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 class="text-2xl font-semibold mb-4 text-center sm:text-left">Availability</h2>
       <p class="text-gray-600 mb-6 text-center sm:text-left">
-        Check available dates for your stay. Booked dates are shown in <span class="text-red-600 font-semibold">red</span>.
+        Select your desired dates below. Booked periods are shaded in gray.
       </p>
-
+    
       <!-- Calendar container -->
-      <div class="bg-white rounded-xl shadow p-6 mb-8">
-        <input
-          id="availabilityCalendar"
-          class="border border-gray-300 rounded-lg w-full p-2 text-gray-800 focus:ring-sky-500 focus:border-sky-500"
-          placeholder="View availability"
-          readonly
-        />
+      <div class="bg-white rounded-xl shadow p-6 mb-4">
+        <div id="availabilityCalendar" class="flatpickr-calendar-wrapper w-full"></div>
+    
+        <!-- Legend -->
+        <div class="flex justify-center gap-6 mt-4 text-sm text-gray-600">
+          <div class="flex items-center gap-2">
+            <span class="w-4 h-4 bg-gray-300 rounded"></span> Booked
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-4 h-4 bg-blue-200 rounded"></span> Available
+          </div>
+        </div>
       </div>
-
-      <!-- Smooth scroll button -->
-      <div class="text-center mb-8">
+    
+      <div class="text-center mt-6">
         <button id="bookNowBtn"
           class="bg-sky-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-sky-600 transition">
           Book Now
         </button>
       </div>
-
     </section>
 
 
@@ -551,6 +586,7 @@ Notes:
       ];
   
       flatpickr("#availabilityCalendar", {
+        inline: true, // always visible calendar
         mode: "range",
         minDate: "today",
         dateFormat: "Y-m-d",
@@ -558,16 +594,16 @@ Notes:
         onDayCreate: function (dObj, dStr, fp, dayElem) {
           const date = dayElem.dateObj;
           const isoDate = date.toISOString().slice(0, 10);
-          const isBooked = bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to);
-          if (isBooked) dayElem.classList.add("booked");
+          if (bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to)) {
+            dayElem.classList.add("booked");
+          }
         },
       });
-      
-      // Smooth scroll "Book Now" button
+  
+      // Smooth scroll to booking section
       document.getElementById("bookNowBtn").addEventListener("click", function () {
         document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
       });
-
     });
   </script>
 
