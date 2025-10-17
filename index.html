@@ -66,7 +66,22 @@ Notes:
   </style>
 
   <style>
-    /* Refined flatpickr colors */
+    /* Layout and centering */
+    .flatpickr-calendar-wrapper {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .flatpickr-calendar {
+      position: relative !important;
+      opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      margin: 0 auto;
+    }
+
+    /* Color coding */
     .flatpickr-day.booked,
     .flatpickr-day.booked:hover {
       background-color: #f87171 !important; /* red-400 */
@@ -75,36 +90,27 @@ Notes:
       border-radius: 6px !important;
     }
 
-    .flatpickr-day:not(.booked):not(.disabled):hover {
-      background-color: #bbf7d0 !important; /* green-200 */
+    .flatpickr-day.available {
+      background-color: #dcfce7 !important; /* green-100 */
       color: #166534 !important; /* green-800 */
+      border-radius: 6px !important;
+    }
+
+    .flatpickr-day.available:hover {
+      background-color: #86efac !important; /* green-300 */
     }
 
     .flatpickr-day.selected,
     .flatpickr-day.startRange,
     .flatpickr-day.endRange {
-      background-color: #4ade80 !important; /* green-400 */
-      color: #14532d !important;
+      background-color: #22c55e !important; /* green-500 */
+      color: white !important;
       border: none !important;
-      border-radius: 6px !important;
     }
 
     .flatpickr-day.inRange {
-      background-color: #86efac !important; /* green-300 */
-    }
-
-    /* Always show calendar inline */
-    .flatpickr-calendar {
-      position: relative !important;
-      opacity: 1 !important;
-      display: block !important;
-      visibility: visible !important;
-    }
-
-    .flatpickr-calendar-wrapper {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
+      background-color: #4ade80 !important; /* green-400 */
+      color: #14532d !important;
     }
   </style>
 
@@ -584,15 +590,13 @@ Notes:
   
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Define booked date ranges
       const bookedRanges = [
         { from: "2025-10-10", to: "2025-10-15" },
         { from: "2025-10-25", to: "2025-10-28" },
         { from: "2025-11-05", to: "2025-11-10" },
       ];
   
-      // Initialize flatpickr with booked/available colors
-      flatpickr("#availabilityCalendar", {
+      const fp = flatpickr("#availabilityCalendar", {
         inline: true,
         mode: "range",
         minDate: "today",
@@ -601,13 +605,16 @@ Notes:
         onDayCreate: function (dObj, dStr, fp, dayElem) {
           const date = dayElem.dateObj;
           const isoDate = date.toISOString().slice(0, 10);
-          if (bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to)) {
+  
+          const isBooked = bookedRanges.some(r => isoDate >= r.from && isoDate <= r.to);
+          if (isBooked) {
             dayElem.classList.add("booked");
+          } else {
+            dayElem.classList.add("available");
           }
         },
       });
   
-      // Smooth scroll to booking form
       document.getElementById("bookNowBtn").addEventListener("click", function () {
         document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
       });
