@@ -141,30 +141,47 @@
     </section>
 
     <!-- GALLERY -->
-    <section id="gallery" class="py-16 bg-gray-50">
-      <div class="max-w-6xl mx-auto px-4">
-        <h2 class="text-2xl font-semibold mb-6 text-center">Gallery</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          <img
-            src="assets/thumbnails/thumb_wildstrubel.jpeg"
-            class="w-full h-40 object-cover rounded"
-            alt="View"
-          />
-          <img
-            src="assets/thumbnails/thumb_Bedroom_1.jpeg"
-            class="w-full h-40 object-cover rounded"
-            alt="Bedroom"
-          />
-          <img
-            src="assets/thumbnails/thumb_Bedroom_2.jpeg"
-            class="w-full h-40 object-cover rounded"
-            alt="Bedroom 2"
-          />
-          <img
-            src="assets/thumbnails/thumb_livingroom.jpeg"
-            class="w-full h-40 object-cover rounded"
-            alt="Living room"
-          />
+    <section id="gallery" class="mt-16 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto text-center">
+        <h2 class="text-2xl font-semibold mb-4">Gallery</h2>
+        <p class="text-gray-600 mb-6">
+          Explore the charm of Chalet Strubel — inside and out.
+        </p>
+    
+        <!-- Thumbnails Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <!-- Replace image paths with your actual ones -->
+          <a href="assets/wildstrubel.jpeg" class="glightbox" data-glightbox="title: View from Balcony">
+            <img src="assets/thumbnails/thumb_wildstrubel.jpeg" alt="View from balcony" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/Bedroom_1.jpeg" class="glightbox" data-glightbox="title: Bedroom 1">
+            <img src="assets/thumbnails/thumb_Bedroom_1.jpeg" alt="Bedroom 1" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/photo3.jpg" class="glightbox" data-glightbox="title: Bedroom 2">
+            <img src="assets/thumbnails/thumb_photo3.jpeg" alt="Bedroom 2" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/photo4.jpg" class="glightbox" data-glightbox="title: View">
+            <img src="assets/thumbnails/thumb_photo4.jpeg" alt="Mountain view" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/livingroom.jpg" class="glightbox" data-glightbox="title: Living Room">
+            <img src="assets/thumbnails/thumb_livingroom.jpeg" alt="Living room" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/kitchen.jpg" class="glightbox" data-glightbox="title: Kitchen">
+            <img src="assets/thumbnails/thumb_kitchen.jpeg" alt="Kitchen" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/bathroom.jpg" class="glightbox" data-glightbox="title: Bathroom">
+            <img src="assets/thumbnails/thumb_bathroom.jpeg" alt="Bathroom" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+          <a href="assets/terrace.jpg" class="glightbox" data-glightbox="title: Terrace">
+            <img src="assets/thumbnails/thumb_terrace.jpeg" alt="Terrace view" class="w-full h-40 object-cover rounded shadow hover:opacity-90 transition">
+          </a>
+        </div>
+    
+        <!-- View All Photos Button -->
+        <div class="mt-8">
+          <a href="#gallery" class="inline-block bg-sky-600 hover:bg-sky-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
+            View All Photos
+          </a>
         </div>
       </div>
     </section>
