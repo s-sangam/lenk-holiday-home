@@ -146,30 +146,32 @@ Notes:
 <body class="bg-gray-50 text-gray-800 leading-relaxed">
 
   <!-- HEADER -->
-  <header class="bg-white shadow-sm sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
-        <a href="#" class="flex items-center gap-3 text-xl font-semibold">
-          <img src="assets/logo/Chalet_Strubel_Logo.png" alt="logo" class="h-20 w-20 rounded-md object-cover"> 
-          <span>Chalet Strubel (Maya's Huus)</span>
+  <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
+      
+      <!-- Logo and Site Name -->
+      <div class="flex items-center gap-3">
+        <a href="#hero" class="flex items-center gap-3">
+          <img 
+            src="assets/logo.png" 
+            alt="Chalet Strubel Logo" 
+            class="h-16 sm:h-20 w-auto object-contain"
+          />
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-sky-800 leading-tight">Chalet Strubel</h1>
+            <p class="text-sm sm:text-base text-gray-600">Maya’s Huss</p>
+          </div>
         </a>
-        <nav class="hidden md:flex items-center gap-6">
-          <a href="#about" class="hover:underline">About</a>
-          <a href="#gallery" class="hover:underline">Gallery</a>
-          <a href="#availability" class="hover:underline">Availability</a>
-          <a href="#location" class="hover:underline">Location</a>
-          <a href="#contact" class="hover:underline">Contact</a>
-          <a href="#booking" class="text-white bg-sky-600 px-4 py-2 rounded hover:bg-sky-700">Book</a>
-        </nav>
-        <div class="flex items-center gap-3">
-          <select id="lang" aria-label="Language" class="border rounded px-2 py-1" onchange="switchLang(this.value)">
-            <option value="de">DE</option>
-            <option value="en">EN</option>
-          </select>
-          <button class="md:hidden" id="mobileBtn" aria-label="menu" onclick="toggleMobile()"><i class="fa fa-bars"></i></button>
-        </div>
       </div>
-    </div>
+  
+      <!-- Navigation -->
+      <nav class="hidden md:flex gap-6 text-gray-700 font-medium">
+        <a href="#gallery" class="hover:text-sky-600 transition">Gallery</a>
+        <a href="#about" class="hover:text-sky-600 transition">About</a>
+        <a href="#availability" class="hover:text-sky-600 transition">Availability</a>
+        <a href="#booking" class="hover:text-sky-600 transition">Booking</a>
+        <a href="#contact" class="hover:text-sky-600 transition">Contact</a>
+      </nav>
     <!-- mobile menu -->
     <div id="mobileMenu" class="md:hidden hidden px-4 pb-4">
       <a href="#about" class="block py-2">About</a>
