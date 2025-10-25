@@ -400,15 +400,26 @@
       }
     </script>
     <script>
-      // Initialize glightbox
-      const lightbox = GLightbox({
-        selector: '.glightbox'
-      });
-    
-      // When "View All Photos" is clicked, open the first gallery image
-      document.getElementById('openGallery').addEventListener('click', function () {
-        const firstImage = document.querySelector('.glightbox[data-gallery="chalet-gallery"]');
-        if (firstImage) firstImage.click();
+      document.addEventListener('DOMContentLoaded', function () {
+        // Initialize GLightbox once DOM is ready
+        const lightbox = GLightbox({
+          selector: '.glightbox'
+        });
+  
+        // Handle "View All Photos" button click
+        const viewAllBtn = document.getElementById('openGallery');
+        if (viewAllBtn) {
+          viewAllBtn.addEventListener('click', function () {
+            const firstImage = document.querySelector('.glightbox[data-gallery="chalet-gallery"]');
+            if (firstImage) {
+              firstImage.click(); // Triggers the GLightbox
+            } else {
+              console.warn('No gallery images found with data-gallery="chalet-gallery"');
+            }
+          });
+        } else {
+          console.warn('openGallery button not found.');
+        }
       });
     </script>
   </body>
