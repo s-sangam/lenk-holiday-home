@@ -192,11 +192,20 @@
           </a>
         </div>
     
-        <!-- View All Photos Button -->
-        <div class="mt-8">
-          <button id="openGallery" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
+        <!-- View All Photos Button + Dynamic Photo Count Badge -->
+        <div class="mt-8 flex justify-center items-center gap-3">
+          <button
+            id="openGallery"
+            class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition"
+          >
             View All Photos
           </button>
+          <span
+            id="photoCountBadge"
+            class="inline-flex items-center bg-sky-100 text-sky-800 text-sm font-medium px-3 py-1 rounded-full shadow-sm"
+          >
+            📷 0 Photos
+          </span>
         </div>
       </div>
     </section>
@@ -401,24 +410,26 @@
     </script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        // Initialize GLightbox once DOM is ready
+        // Initialize GLightbox
         const lightbox = GLightbox({
           selector: '.glightbox'
         });
-  
+    
         // Handle "View All Photos" button click
         const viewAllBtn = document.getElementById('openGallery');
         if (viewAllBtn) {
           viewAllBtn.addEventListener('click', function () {
             const firstImage = document.querySelector('.glightbox[data-gallery="chalet-gallery"]');
-            if (firstImage) {
-              firstImage.click(); // Triggers the GLightbox
-            } else {
-              console.warn('No gallery images found with data-gallery="chalet-gallery"');
-            }
+            if (firstImage) firstImage.click();
           });
-        } else {
-          console.warn('openGallery button not found.');
+        }
+    
+        // Dynamically update the photo count badge
+        const galleryItems = document.querySelectorAll('.glightbox[data-gallery="chalet-gallery"]');
+        const badge = document.getElementById('photoCountBadge');
+        if (badge) {
+          const count = galleryItems.length;
+          badge.textContent = `📷 ${count} Photo${count !== 1 ? 's' : ''}`;
         }
       });
     </script>
