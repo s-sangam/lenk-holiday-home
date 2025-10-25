@@ -369,7 +369,7 @@
         const header = document.getElementById("mainHeader");
         header.classList.toggle("sticky", window.scrollY > 20);
       });
-
+    
       // Language toggle
       const btnDe = document.getElementById("btn-de");
       const btnEn = document.getElementById("btn-en");
@@ -389,25 +389,79 @@
           (el) => el.classList.remove("hidden")
         );
       });
-
-      // Simple calendar generation
+    
+      // ==============================
+      // 📅 Availability Calendar + Selection
+      // ==============================
       const calendar = document.getElementById("calendar");
-      const daysInMonth = 30;
+      const daysInMonth = 30; // Example month (October)
       const bookedRanges = [
         [3, 5],
         [10, 12],
         [22, 25],
       ];
-      for (let i = 1; i <= daysInMonth; i++) {
-        const day = document.createElement("div");
-        day.className =
-          "calendar-day border rounded py-2 text-sm sm:text-base";
-        const busy = bookedRanges.some(([start, end]) => i >= start && i <= end);
-        day.textContent = i;
-        day.classList.add(busy ? "busy" : "available");
-        calendar.appendChild(day);
+    
+      let selectedStart = null;
+      let selectedEnd = null;
+    
+      function renderCalendar() {
+        calendar.innerHTML = ""; // Clear calendar
+    
+        for (let i = 1; i <= daysInMonth; i++) {
+          const day = document.createElement("div");
+          day.className =
+            "calendar-day border rounded py-2 text-sm sm:text-base text-center cursor-pointer transition-colors";
+    
+          const isBusy = bookedRanges.some(([start, end]) => i >= start && i <= end);
+          day.textContent = i;
+    
+          if (isBusy) {
+            day.classList.add("busy", "bg-red-400", "text-white", "cursor-not-allowed");
+          } else {
+            day.classList.add("available", "bg-green-200", "hover:bg-green-300");
+            day.addEventListener("click", () => handleDayClick(i));
+          }
+    
+          // Highlight selected range
+          if (selectedStart && selectedEnd && i >= selectedStart && i <= selectedEnd) {
+            day.classList.remove("bg-green-200", "hover:bg-green-300");
+            day.classList.add("bg-blue-500", "text-white");
+          }
+    
+          calendar.appendChild(day);
+        }
       }
+    
+      function handleDayClick(dayNumber) {
+        if (!selectedStart || (selectedStart && selectedEnd)) {
+          selectedStart = dayNumber;
+          selectedEnd = null;
+        } else if (dayNumber < selectedStart) {
+          selectedEnd = selectedStart;
+          selectedStart = dayNumber;
+        } else {
+          selectedEnd = dayNumber;
+        }
+        updateBookingForm();
+        renderCalendar();
+      }
+    
+      function updateBookingForm() {
+        const checkin = document.getElementById("checkin");
+        const checkout = document.getElementById("checkout");
+    
+        if (selectedStart)
+          checkin.value = `2025-10-${String(selectedStart).padStart(2, "0")}`;
+        else checkin.value = "";
+    
+        if (selectedEnd)
+          checkout.value = `2025-10-${String(selectedEnd).padStart(2, "0")}`;
+        else checkout.value = "";
+      }
+    
+      renderCalendar();
     </script>
+
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         // Initialize GLightbox
