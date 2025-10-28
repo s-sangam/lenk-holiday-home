@@ -388,18 +388,18 @@
         const calendarContainer = document.getElementById("calendar");
         if (!calendarContainer) return;
     
-        // Booked ranges
+        // Booked date ranges as Date objects (start, end)
         const bookedRanges = [
-          [3, 5],
-          [10, 12],
-          [22, 25]
+          [new Date(2025, 9, 3), new Date(2025, 9, 5)],  // Oct 3-5, 2025
+          [new Date(2025, 9, 10), new Date(2025, 9, 12)],
+          [new Date(2025, 9, 22), new Date(2025, 9, 25)]
         ];
     
-        let selectedStart = null;
-        let selectedEnd = null;
+        let selectedStart = null;  // Date object
+        let selectedEnd = null;    // Date object
     
         const today = new Date();
-        let currentMonth = today.getMonth(); // 0-based
+        let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
     
         const monthNames = [
@@ -408,7 +408,7 @@
         ];
     
         // ----------------------------
-        // Create navigation arrows dynamically
+        // Create navigation arrows
         // ----------------------------
         const navContainer = document.createElement("div");
         navContainer.className = "flex justify-between items-center mb-4";
@@ -443,15 +443,24 @@
         navContainer.appendChild(leftArrow);
         navContainer.appendChild(monthLabel);
         navContainer.appendChild(rightArrow);
-    
         calendarContainer.parentNode.insertBefore(navContainer, calendarContainer);
     
         // ----------------------------
         // Utility functions
         // ----------------------------
-        function isBusyDay(dayNum, month = currentMonth, year = currentYear) {
-          // Only check for current month for simplicity
-          return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
+        function isSameDate(d1, d2) {
+          return d1.getFullYear() === d2.getFullYear() &&
+                 d1.getMonth() === d2.getMonth() &&
+                 d1.getDate() === d2.getDate();
+        }
+    
+        function isInRange(date, start, end) {
+          if (!start || !end) return false;
+          return date >= start && date <= end;
+        }
+    
+        function isBusyDay(date) {
+          return bookedRanges.some(([s,e]) => date >= s && date <= e);
         }
     
         function renderCalendar() {
@@ -482,14 +491,15 @@
           }
     
           for (let d = 1; d <= daysInMonth; d++) {
-            const busy = isBusyDay(d);
-            const inRange = selectedStart !== null && selectedEnd !== null &&
-                            d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
-            const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
+            const dateObj = new Date(currentYear, currentMonth, d);
+    
+            const busy = isBusyDay(dateObj);
+            const inRange = isInRange(dateObj, selectedStart, selectedEnd);
+            const singleSelected = selectedStart && !selectedEnd && isSameDate(dateObj, selectedStart);
     
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
-            dayBtn.dataset.day = d;
+            dayBtn.dataset.date = dateObj.toISOString();
             dayBtn.textContent = d;
             dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
     
@@ -511,28 +521,26 @@
         }
     
         function onDayClick(evt) {
-          const dayNum = Number(evt.currentTarget.dataset.day);
+          const dateObj = new Date(evt.currentTarget.dataset.date);
     
-          if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
-            selectedStart = dayNum;
+          if (!selectedStart || (selectedStart && selectedEnd)) {
+            selectedStart = dateObj;
             selectedEnd = null;
           } else {
-            if (dayNum < selectedStart) {
+            if (dateObj < selectedStart) {
               selectedEnd = selectedStart;
-              selectedStart = dayNum;
-            } else if (dayNum === selectedStart) {
+              selectedStart = dateObj;
+            } else if (isSameDate(dateObj, selectedStart)) {
               selectedStart = null;
               selectedEnd = null;
             } else {
-              selectedEnd = dayNum;
+              selectedEnd = dateObj;
             }
           }
     
-          // Conflict check with booked ranges
-          if (selectedStart !== null && selectedEnd !== null) {
-            const start = Math.min(selectedStart, selectedEnd);
-            const end = Math.max(selectedStart, selectedEnd);
-            const conflict = bookedRanges.some(([s, e]) => !(e < start || s > end));
+          // Conflict check
+          if (selectedStart && selectedEnd) {
+            const conflict = bookedRanges.some(([s,e]) => !(e < selectedStart || s > selectedEnd));
             if (conflict) {
               alert("The selected range includes booked dates. Please choose a different range.");
               selectedStart = null;
@@ -549,11 +557,12 @@
           const checkoutInput = document.getElementById("checkout");
           if (!checkinInput || !checkoutInput) return;
     
-          const formatISO = (day) => {
-            if (!day) return "";
-            const mm = String(currentMonth + 1).padStart(2,"0");
-            return `${currentYear}-${mm}-${String(day).padStart(2,"0")}`;
-          };
+          function formatISO(d) {
+            if (!d) return "";
+            const mm = String(d.getMonth()+1).padStart(2,"0");
+            const dd = String(d.getDate()).padStart(2,"0");
+            return `${d.getFullYear()}-${mm}-${dd}`;
+          }
     
           checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
           checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
