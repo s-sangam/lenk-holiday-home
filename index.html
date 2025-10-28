@@ -325,37 +325,35 @@
             action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse"
             method="POST"
             target="hidden_iframe"
-            onsubmit="showSubmissionMessage(); return true;"
             class="space-y-4"
           >
-            <!-- Google Forms hidden input for dates -->
             <input type="hidden" name="entry.1408509440" id="formDate">
-        
+
             <label class="text-sm block">
               Name
               <input name="entry.1050908070" required class="mt-1 block w-full rounded border border-gray-300 p-2">
             </label>
-        
+
             <label class="text-sm block">
               Email
               <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border border-gray-300 p-2">
             </label>
-        
+
             <label class="text-sm block">
               Phone
               <input name="entry.569286279" required class="mt-1 block w-full rounded border border-gray-300 p-2">
             </label>
-        
+
             <label class="text-sm block">
               Dates
               <input type="text" id="formDateDisplay" readonly class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="Select dates from calendar">
             </label>
-        
+
             <label class="text-sm block">
               Message
               <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea>
             </label>
-        
+
             <div class="flex gap-3 items-center">
               <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
               <button type="button" onclick="resetForm()" class="px-4 py-2 border rounded">Clear</button>
@@ -364,6 +362,13 @@
         
           <!-- Hidden iframe for Google Forms -->
           <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+          <aside class="mt-6">
+            <h4 class="font-semibold">Booking policies</h4>
+            <p class="text-xs text-gray-600 mt-2">
+              Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.
+            </p>
+          </aside>
         </div>
     
       </div>
@@ -451,217 +456,166 @@
       }
     
       // -----------------------------
-      // Availability Calendar
+      // Booking form helper functions
       // -----------------------------
-      let selectedStart = null;
-      let selectedEnd = null;
-      let currentMonth, currentYear;
-      const monthNames = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-      ];
-      const bookedRanges = [
-        [3,5],
-        [10,12],
-        [22,25]
-      ];
+      function updateBookingInputs(checkin, checkout) {
+        const formDate = document.getElementById("formDate");
+        const formDateDisplay = document.getElementById("formDateDisplay");
+        if (!formDate || !formDateDisplay) return;
     
-      const calendarContainer = document.getElementById("calendar");
-      const monthLabel = document.getElementById("monthLabel");
-    
-      if (calendarContainer && monthLabel) {
-        const today = new Date();
-        currentMonth = today.getMonth();
-        currentYear = today.getFullYear();
-    
-        // Navigation arrows
-        const prevArrow = document.createElement("button");
-        prevArrow.innerHTML = "&#8592;";
-        prevArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
-        prevArrow.addEventListener("click", () => {
-          currentMonth--;
-          if(currentMonth<0){currentMonth=11; currentYear--;}
-          renderCalendar();
-        });
-    
-        const nextArrow = document.createElement("button");
-        nextArrow.innerHTML = "&#8594;";
-        nextArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
-        nextArrow.addEventListener("click", () => {
-          currentMonth++;
-          if(currentMonth>11){currentMonth=0; currentYear++;}
-          renderCalendar();
-        });
-    
-        const navWrapper = document.createElement("div");
-        navWrapper.className = "flex justify-between items-center mb-2";
-        navWrapper.appendChild(prevArrow);
-        navWrapper.appendChild(monthLabel);
-        navWrapper.appendChild(nextArrow);
-        calendarContainer.parentNode.insertBefore(navWrapper, calendarContainer);
-    
-        // Render calendar
-        renderCalendar();
-      }
-    
-      function isBusyDay(day, month, year) {
-        // Only example logic for current month
-        return bookedRanges.some(([s,e])=>day>=s && day<=e && month===new Date().getMonth() && year===new Date().getFullYear());
-      }
-    
-      function renderCalendar() {
-        monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-        calendarContainer.innerHTML = "";
-    
-        const weekRow = document.createElement("div");
-        weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
-        ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d=>{
-          const el=document.createElement("div");
-          el.textContent=d;
-          el.className="text-center";
-          weekRow.appendChild(el);
-        });
-        calendarContainer.appendChild(weekRow);
-    
-        const daysGrid = document.createElement("div");
-        daysGrid.className="grid grid-cols-7 gap-2";
-    
-        const firstDay = new Date(currentYear,currentMonth,1).getDay();
-        const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
-    
-        for(let i=0;i<firstDay;i++){
-          const empty=document.createElement("div");
-          daysGrid.appendChild(empty);
-        }
-    
-        for(let d=1;d<=daysInMonth;d++){
-          const busy = isBusyDay(d,currentMonth,currentYear);
-          const inRange = selectedStart && selectedEnd && isDateInRange(d,currentMonth,currentYear);
-          const singleSelected = selectedStart && !selectedEnd && isSameDate(d,currentMonth,currentYear,selectedStart);
-    
-          const dayBtn=document.createElement("button");
-          dayBtn.type="button";
-          dayBtn.dataset.day=d;
-          dayBtn.dataset.month=currentMonth;
-          dayBtn.dataset.year=currentYear;
-          dayBtn.textContent=d;
-          dayBtn.className="min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
-    
-          if(busy){
-            dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
-            dayBtn.disabled=true;
-          } else if(inRange || singleSelected){
-            dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
-            dayBtn.addEventListener("click", onDayClick);
-          } else{
-            dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
-            dayBtn.addEventListener("click", onDayClick);
-          }
-    
-          daysGrid.appendChild(dayBtn);
-        }
-    
-        calendarContainer.appendChild(daysGrid);
-        updateBookingInputs();
-      }
-    
-      function isSameDate(day, month, year, ref){
-        return day===ref.day && month===ref.month && year===ref.year;
-      }
-    
-      function isDateInRange(day, month, year){
-        if(!selectedStart || !selectedEnd) return false;
-        const start = new Date(selectedStart.year, selectedStart.month, selectedStart.day);
-        const end = new Date(selectedEnd.year, selectedEnd.month, selectedEnd.day);
-        const current = new Date(year, month, day);
-        return current>=start && current<=end;
-      }
-    
-      function onDayClick(evt){
-        const dayNum = Number(evt.currentTarget.dataset.day);
-        const month = Number(evt.currentTarget.dataset.month);
-        const year = Number(evt.currentTarget.dataset.year);
-        const clickedDate = {day: dayNum, month, year};
-    
-        if(!selectedStart || (selectedStart && selectedEnd)){
-          selectedStart=clickedDate;
-          selectedEnd=null;
+        if (checkin && checkout) {
+          formDate.value = `${checkin} to ${checkout}`;
+          formDateDisplay.value = `${checkin} to ${checkout}`;
+        } else if (checkin) {
+          formDate.value = checkin;
+          formDateDisplay.value = checkin;
         } else {
-          const startDate=new Date(selectedStart.year, selectedStart.month, selectedStart.day);
-          const clickedDateObj=new Date(year, month, dayNum);
-          if(clickedDateObj<startDate){
-            selectedEnd=selectedStart;
-            selectedStart=clickedDate;
-          } else if(clickedDateObj.getTime()===startDate.getTime()){
-            selectedStart=clickedDate;
-            selectedEnd=null;
-          } else{
-            selectedEnd=clickedDate;
-          }
+          formDate.value = "";
+          formDateDisplay.value = "";
         }
+      }
     
-        renderCalendar();
+      function showSubmissionMessage() {
+        const form = document.getElementById("bookingForm");
+        const message = document.getElementById("thank-you-message");
+        if (!form || !message) return;
+    
+        form.style.display = "none";
+        message.style.display = "block";
+      }
+    
+      function resetForm() {
+        const form = document.getElementById("bookingForm");
+        const message = document.getElementById("thank-you-message");
+        form.reset();
+        form.style.display = "block";
+        message.style.display = "none";
+    
+        // clear date fields
+        updateBookingInputs(null, null);
       }
     
       // -----------------------------
-      // Update booking inputs globally
+      // Form submission to Google Forms
       // -----------------------------
-      function updateBookingInputs(){
-        const checkinInput = document.getElementById('checkin');
-        const checkoutInput = document.getElementById('checkout');
-        const formHidden = document.getElementById('formDate');
+      const bookingForm = document.getElementById("bookingForm");
+      if (bookingForm) {
+        bookingForm.addEventListener("submit", (e) => {
+          // ensure dates are updated
+          const checkin = document.getElementById("checkin").value;
+          const checkout = document.getElementById("checkout").value;
+          updateBookingInputs(checkin, checkout);
     
-        if(!checkinInput || !checkoutInput || !formHidden) return;
-    
-        const formatDate=(d)=>{
-          if(!d) return "";
-          const mm=String(d.month+1).padStart(2,"0");
-          const dd=String(d.day).padStart(2,"0");
-          return `${d.year}-${mm}-${dd}`;
-        };
-    
-        checkinInput.value = selectedStart ? formatDate(selectedStart) : "";
-        checkoutInput.value = selectedEnd ? formatDate(selectedEnd) : "";
-    
-        let displayVal="";
-        if(selectedStart && selectedEnd) displayVal=`${formatDate(selectedStart)} → ${formatDate(selectedEnd)}`;
-        else if(selectedStart) displayVal=formatDate(selectedStart);
-    
-        formHidden.value=displayVal;
-      }
-    
-      // -----------------------------
-      // Google Form submission handling
-      // -----------------------------
-      let submitted=false;
-      const bookingForm=document.getElementById('bookingForm');
-      if(bookingForm){
-        bookingForm.addEventListener("submit",(e)=>{
-          e.preventDefault();
-          updateBookingInputs(); // ensure date is set
-    
-          if(submitted) return;
-          submitted=true;
-          bookingForm.style.display='none';
-    
-          const thankYouMsg=document.getElementById('thank-you-message');
-          if(thankYouMsg) thankYouMsg.style.display='block';
+          // show thank-you message
+          showSubmissionMessage();
         });
       }
     
-      function clearForm(){
-        const bookingForm=document.getElementById('bookingForm');
-        if(bookingForm) bookingForm.reset();
-        submitted=false;
-        bookingForm.style.display='block';
+      // -----------------------------
+      // Availability Calendar (simplified)
+      // -----------------------------
+      (function () {
+        const calendarContainer = document.getElementById("calendar");
+        if (!calendarContainer) return;
     
-        const thankYouMsg=document.getElementById('thank-you-message');
-        if(thankYouMsg) thankYouMsg.style.display='none';
-      }
+        const bookedRanges = [[3,5],[10,12],[22,25]];
+        let selectedStart = null;
+        let selectedEnd = null;
     
-      function resetForm(){
-        clearForm();
-      }
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    
+        const monthYearEl = document.getElementById("monthLabel") || document.createElement("div");
+        monthYearEl.className = "font-semibold text-lg text-center mb-2";
+        calendarContainer.parentNode.insertBefore(monthYearEl, calendarContainer);
+    
+        function isBusyDay(dayNum) {
+          return bookedRanges.some(([s,e]) => dayNum >= s && dayNum <= e);
+        }
+    
+        function renderCalendar() {
+          monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+          calendarContainer.innerHTML = "";
+    
+          const weekRow = document.createElement("div");
+          weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
+          ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+            const el = document.createElement("div");
+            el.textContent = d;
+            el.className = "text-center";
+            weekRow.appendChild(el);
+          });
+          calendarContainer.appendChild(weekRow);
+    
+          const daysGrid = document.createElement("div");
+          daysGrid.className = "grid grid-cols-7 gap-2";
+    
+          const firstDay = new Date(currentYear, currentMonth,1).getDay();
+          const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
+    
+          for (let i=0;i<firstDay;i++){
+            daysGrid.appendChild(document.createElement("div"));
+          }
+    
+          for (let d=1; d<=daysInMonth; d++){
+            const busy = isBusyDay(d);
+            const inRange = selectedStart !== null && selectedEnd !== null && d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
+            const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
+    
+            const dayBtn = document.createElement("button");
+            dayBtn.type = "button";
+            dayBtn.dataset.day = d;
+            dayBtn.textContent = d;
+            dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
+    
+            if (busy) {
+              dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
+              dayBtn.disabled = true;
+            } else if (inRange || singleSelected) {
+              dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
+              dayBtn.addEventListener("click", onDayClick);
+            } else {
+              dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
+              dayBtn.addEventListener("click", onDayClick);
+            }
+    
+            daysGrid.appendChild(dayBtn);
+          }
+    
+          calendarContainer.appendChild(daysGrid);
+        }
+    
+        function onDayClick(evt){
+          const dayNum = Number(evt.currentTarget.dataset.day);
+    
+          if(selectedStart===null || (selectedStart!==null && selectedEnd!==null)){
+            selectedStart = dayNum;
+            selectedEnd = null;
+          } else {
+            if(dayNum<selectedStart){
+              selectedEnd=selectedStart;
+              selectedStart=dayNum;
+            } else if(dayNum===selectedStart){
+              selectedStart=null;
+              selectedEnd=null;
+            } else {
+              selectedEnd=dayNum;
+            }
+          }
+    
+          // update booking form
+          const formatISO = d => `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+          const checkin = selectedStart ? formatISO(selectedStart) : null;
+          const checkout = selectedEnd ? formatISO(selectedEnd) : checkin;
+          updateBookingInputs(checkin, checkout);
+    
+          renderCalendar();
+        }
+    
+        renderCalendar();
+      })();
     </script>
 
     <script>
