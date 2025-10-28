@@ -360,17 +360,13 @@
     </section>
 
     <script>
-      // =====================
-      // Sticky Header
-      // =====================
+      // Sticky header
       window.addEventListener("scroll", () => {
         const header = document.getElementById("mainHeader");
         if (header) header.classList.toggle("sticky", window.scrollY > 20);
       });
     
-      // =====================
-      // Language Toggle
-      // =====================
+      // Language toggle
       const btnDe = document.getElementById("btn-de");
       const btnEn = document.getElementById("btn-en");
       if (btnDe && btnEn) {
@@ -384,61 +380,106 @@
         });
       }
     
-      // =====================
+      // ======================
       // Availability Calendar
-      // =====================
-      (function(){
-        const calendar = document.getElementById("calendar");
-        if (!calendar) return;
+      // ======================
+      (function () {
+        const calendarContainer = document.getElementById("calendar");
+        if (!calendarContainer) return;
     
-        const calendarYear = 2025;
-        const calendarMonth = 10; // October
-        const daysInMonth = 31;
-    
+        // Booked date ranges (day numbers)
         const bookedRanges = [
-          [3,5],
-          [10,12],
-          [22,25]
+          [3, 5],
+          [10, 12],
+          [22, 25]
         ];
     
         let selectedStart = null;
         let selectedEnd = null;
     
-        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        // Dynamic current month/year
+        const today = new Date();
+        let currentMonth = today.getMonth(); // 0-based
+        let currentYear = today.getFullYear();
+    
+        // Month names
+        const monthNames = [
+          "January","February","March","April","May","June",
+          "July","August","September","October","November","December"
+        ];
+    
+        // Create header with prev/next buttons
+        const headerEl = document.createElement("div");
+        headerEl.className = "flex justify-between items-center mb-2";
+        const prevBtn = document.createElement("button");
+        prevBtn.textContent = "←";
+        prevBtn.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = "→";
+        nextBtn.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        const monthYearEl = document.createElement("div");
+        monthYearEl.className = "font-semibold text-lg";
+        headerEl.appendChild(prevBtn);
+        headerEl.appendChild(monthYearEl);
+        headerEl.appendChild(nextBtn);
+        calendarContainer.parentNode.insertBefore(headerEl, calendarContainer);
+    
+        prevBtn.addEventListener("click", () => {
+          currentMonth--;
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+          }
+          renderCalendar();
+        });
+    
+        nextBtn.addEventListener("click", () => {
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+          renderCalendar();
+        });
     
         function isBusyDay(dayNum) {
-          return bookedRanges.some(([s,e]) => dayNum >= s && dayNum <= e);
+          return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
         }
     
         function renderCalendar() {
-          calendar.innerHTML = "";
+          // Show month/year
+          monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
     
-          // Month name
-          const monthLabel = document.createElement("div");
-          monthLabel.className = "text-xl font-semibold mb-2 text-center";
-          monthLabel.textContent = `${monthNames[calendarMonth-1]} ${calendarYear}`;
-          calendar.appendChild(monthLabel);
+          calendarContainer.innerHTML = "";
     
-          // Weekday header
-          const headerRow = document.createElement("div");
-          headerRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
-          const week = ["Su","Mo","Tu","We","Th","Fr","Sa"];
-          week.forEach(w => {
-            const c = document.createElement("div");
-            c.textContent = w;
-            c.className = "text-center";
-            headerRow.appendChild(c);
+          // Weekdays header
+          const weekRow = document.createElement("div");
+          weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
+          ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+            const el = document.createElement("div");
+            el.textContent = d;
+            el.className = "text-center";
+            weekRow.appendChild(el);
           });
-          calendar.appendChild(headerRow);
+          calendarContainer.appendChild(weekRow);
     
-          // Grid container
-          const grid = document.createElement("div");
-          grid.className = "grid grid-cols-7 gap-2";
+          // Days grid
+          const daysGrid = document.createElement("div");
+          daysGrid.className = "grid grid-cols-7 gap-2";
     
-          for(let d=1; d<=daysInMonth; d++){
+          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+          const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+          // Blank cells for first day
+          for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement("div");
+            daysGrid.appendChild(empty);
+          }
+    
+          for (let d = 1; d <= daysInMonth; d++) {
             const busy = isBusyDay(d);
-            const inRange = selectedStart!==null && selectedEnd!==null && d>=Math.min(selectedStart,selectedEnd) && d<=Math.max(selectedStart,selectedEnd);
-            const singleSelected = selectedStart!==null && selectedEnd===null && d===selectedStart;
+            const inRange = selectedStart !== null && selectedEnd !== null && d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
+            const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
     
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
@@ -446,47 +487,47 @@
             dayBtn.textContent = d;
             dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
     
-            if(busy){
+            if (busy) {
               dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
               dayBtn.disabled = true;
-            } else if(inRange || singleSelected){
+            } else if (inRange || singleSelected) {
               dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
               dayBtn.addEventListener("click", onDayClick);
-            } else{
+            } else {
               dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
               dayBtn.addEventListener("click", onDayClick);
             }
     
-            grid.appendChild(dayBtn);
+            daysGrid.appendChild(dayBtn);
           }
     
-          calendar.appendChild(grid);
+          calendarContainer.appendChild(daysGrid);
         }
     
-        function onDayClick(evt){
+        function onDayClick(evt) {
           const dayNum = Number(evt.currentTarget.dataset.day);
     
-          if(selectedStart===null || (selectedStart!==null && selectedEnd!==null)){
+          if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
             selectedStart = dayNum;
             selectedEnd = null;
-          } else{
-            if(dayNum < selectedStart){
+          } else {
+            if (dayNum < selectedStart) {
               selectedEnd = selectedStart;
               selectedStart = dayNum;
-            } else if(dayNum === selectedStart){
+            } else if (dayNum === selectedStart) {
               selectedStart = null;
               selectedEnd = null;
-            } else{
+            } else {
               selectedEnd = dayNum;
             }
           }
     
-          // Conflict check
-          if(selectedStart!==null && selectedEnd!==null){
-            const start = Math.min(selectedStart,selectedEnd);
-            const end = Math.max(selectedStart,selectedEnd);
-            const conflict = bookedRanges.some(([s,e]) => !(e<start || s>end));
-            if(conflict){
+          // Conflict check with booked ranges
+          if (selectedStart !== null && selectedEnd !== null) {
+            const start = Math.min(selectedStart, selectedEnd);
+            const end = Math.max(selectedStart, selectedEnd);
+            const conflict = bookedRanges.some(([s, e]) => !(e < start || s > end));
+            if (conflict) {
               alert("The selected range includes booked dates. Please choose a different range.");
               selectedStart = null;
               selectedEnd = null;
@@ -497,15 +538,15 @@
           renderCalendar();
         }
     
-        function updateBookingInputs(){
+        function updateBookingInputs() {
           const checkinInput = document.getElementById("checkin");
           const checkoutInput = document.getElementById("checkout");
-          if(!checkinInput || !checkoutInput) return;
+          if (!checkinInput || !checkoutInput) return;
     
-          const formatISO = (day)=>{
-            if(day===null) return "";
-            const mm = String(calendarMonth).padStart(2,"0");
-            return `${calendarYear}-${mm}-${String(day).padStart(2,"0")}`;
+          const formatISO = (day) => {
+            if (!day) return "";
+            const mm = String(currentMonth + 1).padStart(2,"0");
+            return `${currentYear}-${mm}-${String(day).padStart(2,"0")}`;
           };
     
           checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
