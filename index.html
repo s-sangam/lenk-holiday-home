@@ -397,183 +397,180 @@
     </section>
 
     <script>
-      // ------------------------------
-      // Sticky header
-      // ------------------------------
-      window.addEventListener("scroll", () => {
-        const header = document.getElementById("mainHeader");
-        header.classList.toggle("sticky", window.scrollY > 20);
-      });
-    
-      // ------------------------------
-      // Language toggle (DE / EN)
-      // ------------------------------
-      const btnDe = document.getElementById("btn-de");
-      const btnEn = document.getElementById("btn-en");
-    
-      btnDe.addEventListener("click", () => {
-        document
-          .querySelectorAll("#title-de, #tagline-de, #about-text-de")
-          .forEach((el) => el.classList.remove("hidden"));
-        document
-          .querySelectorAll("#title-en, #tagline-en, #about-text-en")
-          .forEach((el) => el.classList.add("hidden"));
-      });
-    
-      btnEn.addEventListener("click", () => {
-        document
-          .querySelectorAll("#title-de, #tagline-de, #about-text-de")
-          .forEach((el) => el.classList.add("hidden"));
-        document
-          .querySelectorAll("#title-en, #tagline-en, #about-text-en")
-          .forEach((el) => el.classList.remove("hidden"));
-      });
-    
-      // ------------------------------
-      // Availability Calendar + Date Selection
-      // ------------------------------
-      (function () {
-        const calendar = document.getElementById("calendar");
-        if (!calendar) return;
-    
+      document.addEventListener("DOMContentLoaded", function () {
+        // Sticky header (keep if you want)
+        window.addEventListener("scroll", () => {
+          const header = document.getElementById("mainHeader");
+          if (header) header.classList.toggle("sticky", window.scrollY > 20);
+        });
+      
+        // Language toggle (safe guards)
+        const btnDe = document.getElementById("btn-de");
+        const btnEn = document.getElementById("btn-en");
+        if (btnDe && btnEn) {
+          btnDe.addEventListener("click", () => {
+            document.querySelectorAll("#title-de, #tagline-de, #about-text-de").forEach((el) => el.classList.remove("hidden"));
+            document.querySelectorAll("#title-en, #tagline-en, #about-text-en").forEach((el) => el.classList.add("hidden"));
+          });
+          btnEn.addEventListener("click", () => {
+            document.querySelectorAll("#title-de, #tagline-de, #about-text-de").forEach((el) => el.classList.add("hidden"));
+            document.querySelectorAll("#title-en, #tagline-en, #about-text-en").forEach((el) => el.classList.remove("hidden"));
+          });
+        }
+      
+        // --- Calendar config ---
+        const calendarEl = document.getElementById("calendar");
+        if (!calendarEl) {
+          console.warn("Calendar element (#calendar) not found.");
+          return;
+        }
+      
+        // Config: change these to match the real month/year
         const calendarYear = 2025;
-        const calendarMonth = 10; // October (1-based)
-        const daysInMonth = 30;
-    
+        const calendarMonth = 10; // October (1..12)
+        const daysInMonth = 31; // actual days in that month. Set to 30 earlier; adjust as needed.
+      
+        // Example booked ranges (day numbers within the month)
+        // Replace with real date ranges if desired
         const bookedRanges = [
           [3, 5],
           [10, 12],
-          [22, 25],
+          [22, 25]
         ];
-    
+      
+        // Selection state
         let selectedStart = null;
         let selectedEnd = null;
-    
+      
+        // Utility: is a day within any booked range?
         function isBusyDay(dayNum) {
           return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
         }
-    
+      
+        // Format a day number to ISO date string YYYY-MM-DD (for date inputs)
+        function formatISO(dayNum) {
+          const mm = String(calendarMonth).padStart(2, "0");
+          return `${calendarYear}-${mm}-${String(dayNum).padStart(2, "0")}`;
+        }
+      
+        // Render the whole calendar
         function renderCalendar() {
-          calendar.innerHTML = "";
-    
-          // Weekday header row
+          calendarEl.innerHTML = "";
+      
+          // Container card for better layout (optional)
+          // Weekday header
           const headerRow = document.createElement("div");
-          headerRow.className =
-            "grid grid-cols-7 gap-1 text-sm font-semibold text-gray-600 mb-2";
-          const week = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-          week.forEach((w) => {
+          headerRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
+          ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(w => {
             const c = document.createElement("div");
             c.textContent = w;
+            c.className = "text-center";
             headerRow.appendChild(c);
           });
-          calendar.appendChild(headerRow);
-    
-          // Calendar days grid
+          calendarEl.appendChild(headerRow);
+      
+          // Grid for days
           const grid = document.createElement("div");
-          grid.className = "grid grid-cols-7 gap-2 sm:gap-3 text-center";
-    
-          for (let d = 1; d <= daysInMonth; d++) {
-            const isBusy = isBusyDay(d);
-            const inSelectedRange =
-              selectedStart !== null &&
-              selectedEnd !== null &&
-              d >= Math.min(selectedStart, selectedEnd) &&
-              d <= Math.max(selectedStart, selectedEnd);
-            const isSelectedStartOnly =
-              selectedStart !== null && selectedEnd === null && d === selectedStart;
-    
-            const dayEl = document.createElement("button");
-            dayEl.type = "button";
-            dayEl.dataset.day = String(d);
-            dayEl.textContent = d;
-            dayEl.className =
-              "px-2 py-3 rounded text-sm font-medium w-full aspect-square";
-    
-            if (isBusy) {
-              dayEl.classList.add(
-                "bg-red-500",
-                "text-white",
-                "cursor-not-allowed",
-                "border",
-                "border-red-600"
-              );
-              dayEl.disabled = true;
-            } else if (inSelectedRange || isSelectedStartOnly) {
-              dayEl.classList.add(
-                "bg-blue-600",
-                "text-white",
-                "border",
-                "border-blue-700"
-              );
-              dayEl.addEventListener("click", onDayClick);
-            } else {
-              dayEl.classList.add(
-                "bg-green-200",
-                "text-green-800",
-                "hover:bg-green-300",
-                "border",
-                "border-green-300"
-              );
-              dayEl.addEventListener("click", onDayClick);
-            }
-    
-            grid.appendChild(dayEl);
+          grid.className = "grid grid-cols-7 gap-2";
+      
+          // Add empty placeholders if month doesn't start on Sunday (assuming 1st day is weekday index)
+          // Calculate weekday of 1st of month
+          const firstWeekday = new Date(calendarYear, calendarMonth - 1, 1).getDay(); // 0..6
+          for (let i = 0; i < firstWeekday; i++) {
+            const empty = document.createElement("div");
+            grid.appendChild(empty);
           }
-    
-          calendar.appendChild(grid);
+      
+          for (let d = 1; d <= daysInMonth; d++) {
+            const busy = isBusyDay(d);
+            const inRange = (selectedStart !== null && selectedEnd !== null) && (d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd));
+            const singleSelected = (selectedStart !== null && selectedEnd === null && d === selectedStart);
+      
+            const dayBtn = document.createElement("button");
+            dayBtn.type = "button";
+            dayBtn.dataset.day = String(d);
+            dayBtn.textContent = d;
+            // ensure visible size so grid doesn't collapse
+            dayBtn.style.minWidth = "40px";
+            dayBtn.style.minHeight = "40px";
+            dayBtn.className = "rounded text-sm font-medium focus:outline-none";
+      
+            if (busy) {
+              dayBtn.className += " bg-red-500 text-white border border-red-600 cursor-not-allowed";
+              dayBtn.disabled = true;
+            } else if (inRange || singleSelected) {
+              dayBtn.className += " bg-blue-600 text-white border border-blue-700";
+              dayBtn.addEventListener("click", onDayClick);
+            } else {
+              dayBtn.className += " bg-green-200 text-green-800 hover:bg-green-300 border border-green-300";
+              dayBtn.addEventListener("click", onDayClick);
+            }
+      
+            grid.appendChild(dayBtn);
+          }
+      
+          calendarEl.appendChild(grid);
         }
-    
+      
+        // Day click handler
         function onDayClick(evt) {
           const dayNum = Number(evt.currentTarget.dataset.day);
-    
+          // If starting new selection or finishing previous selection -> start new
           if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
             selectedStart = dayNum;
             selectedEnd = null;
           } else {
+            // only start exists -> set end or swap if clicked earlier
             if (dayNum < selectedStart) {
               selectedEnd = selectedStart;
               selectedStart = dayNum;
             } else if (dayNum === selectedStart) {
-              selectedStart = dayNum;
+              // click same day: keep it as a single-day selection
               selectedEnd = null;
             } else {
               selectedEnd = dayNum;
             }
           }
-    
+      
+          // Prevent selection that overlaps booked days
           if (selectedStart !== null && selectedEnd !== null) {
             const start = Math.min(selectedStart, selectedEnd);
             const end = Math.max(selectedStart, selectedEnd);
-            const conflict = bookedRanges.some(([s, e]) => !(e < start || s > end));
+            const conflict = bookedRanges.some(([s,e]) => !(e < start || s > end));
             if (conflict) {
-              alert("❌ The selected range includes booked dates. Please choose another range.");
+              alert("The selected range includes already-booked dates. Please choose a different range.");
+              // reset to the clicked day as start (clear end)
               selectedStart = dayNum;
               selectedEnd = null;
             }
           }
-    
+      
           updateBookingInputs();
           renderCalendar();
         }
-    
+      
         function updateBookingInputs() {
-          const checkinInput = document.getElementById("checkin");
-          const checkoutInput = document.getElementById("checkout");
-          if (!checkinInput || !checkoutInput) return;
-    
-          function formatISO(day) {
-            if (day === null) return "";
-            const mm = String(calendarMonth).padStart(2, "0");
-            return `${calendarYear}-${mm}-${String(day).padStart(2, "0")}`;
+          const checkin = document.getElementById("checkin");
+          const checkout = document.getElementById("checkout");
+          if (!checkin || !checkout) {
+            // no inputs present
+            return;
           }
-    
-          checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
-          checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
+          checkin.value = selectedStart ? formatISO(selectedStart) : "";
+          checkout.value = selectedEnd ? formatISO(selectedEnd) : "";
         }
-    
+      
+        // Initial render
         renderCalendar();
-      })();
-    </script>
+      
+        // Expose for debugging (optional)
+        window.__chaletCalendar = {
+          renderCalendar,
+          setBookedRanges: (r) => { bookedRanges.length = 0; r.forEach(x => bookedRanges.push(x)); renderCalendar(); },
+          getSelection: () => ({ start: selectedStart, end: selectedEnd })
+        };
+      });
+      </script>
 
     <script>
       document.addEventListener('DOMContentLoaded', function () {
