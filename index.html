@@ -466,7 +466,6 @@
         let selectedStart = null;
         let selectedEnd = null;
     
-        // Dynamic current month/year
         const today = new Date();
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
@@ -476,7 +475,6 @@
           "July","August","September","October","November","December"
         ];
     
-        // Month label and navigation arrows
         const monthLabel = document.getElementById("monthLabel");
     
         const prevArrow = document.createElement("button");
@@ -505,13 +503,15 @@
         calendarContainer.parentNode.insertBefore(navWrapper, calendarContainer);
     
         function isBusyDay(day, month, year) {
-          return bookedRanges.some(([s, e]) => day >= s && day <= e && month === today.getMonth() && year === today.getFullYear());
+          // Only for current month (example), adapt as needed
+          return bookedRanges.some(([s,e]) => day >= s && day <= e && month === today.getMonth() && year === today.getFullYear());
         }
     
         function renderCalendar() {
           monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
           calendarContainer.innerHTML = "";
     
+          // Weekday header
           const weekRow = document.createElement("div");
           weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
           ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
@@ -630,20 +630,18 @@
       })();
     
       // -----------------------------
-      // Google Form submission handling
+      // Google Form Submission Handling
       // -----------------------------
       let submitted = false;
-    
       const bookingForm = document.getElementById("bookingForm");
       if (bookingForm) {
         bookingForm.addEventListener("submit", (e) => {
           e.preventDefault();
-    
           if (submitted) return;
     
           submitted = true;
-    
           bookingForm.style.display = "none";
+    
           const thankYouMsg = document.getElementById("thank-you-message");
           if (thankYouMsg) thankYouMsg.style.display = "block";
         });
