@@ -311,54 +311,59 @@
     
         <!-- Booking Form -->
         <div id="booking" class="bg-white shadow rounded p-6 flex flex-col justify-between">
-          <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow mb-6" style="display:none;">
+
+          <!-- Submission Message -->
+          <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow mb-6 hidden">
             <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
             <p>Thank you for your reservation inquiry. We'll get back to you within 24 hours.</p>
             <button type="button" onclick="resetForm()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded">New Request</button>
           </div>
         
+          <!-- Booking Form -->
           <form 
             id="bookingForm"
             action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse"
             method="POST"
             target="hidden_iframe"
-            onsubmit="submitted=true; document.getElementById('bookingForm').style.display='none'; return true;"
+            onsubmit="showSubmissionMessage(); return true;"
+            class="space-y-4"
           >
-            <input type="hidden" name="_subject" value="Reservation Inquiry for Chalet Strubel, Lenk">
-            <input type="hidden" name="entry.1408509440" id="formDate" value="">
+            <!-- Google Forms hidden input for dates -->
+            <input type="hidden" name="entry.1408509440" id="formDate">
         
-            <div class="grid grid-cols-1 gap-3">
-              <label class="text-sm">Name
-                <input name="entry.1050908070" required class="mt-1 block w-full rounded border-gray-300 p-2">
-              </label>
-              <label class="text-sm">Email
-                <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border-gray-300 p-2">
-              </label>
-              <label class="text-sm">Phone
-                <input name="entry.569286279" required class="mt-1 block w-full rounded border-gray-300 p-2">
-              </label>
-              <label class="text-sm">Dates
-                <input type="text" id="formDateDisplay" readonly class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Select dates from calendar">
-              </label>
-              <label class="text-sm">Message
-                <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea>
-              </label>
+            <label class="text-sm block">
+              Name
+              <input name="entry.1050908070" required class="mt-1 block w-full rounded border border-gray-300 p-2">
+            </label>
         
-              <div class="flex gap-3 items-center">
-                <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
-                <button type="button" onclick="clearForm()" class="px-4 py-2 border rounded">Clear</button>
-              </div>
+            <label class="text-sm block">
+              Email
+              <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border border-gray-300 p-2">
+            </label>
+        
+            <label class="text-sm block">
+              Phone
+              <input name="entry.569286279" required class="mt-1 block w-full rounded border border-gray-300 p-2">
+            </label>
+        
+            <label class="text-sm block">
+              Dates
+              <input type="text" id="formDateDisplay" readonly class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="Select dates from calendar">
+            </label>
+        
+            <label class="text-sm block">
+              Message
+              <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea>
+            </label>
+        
+            <div class="flex gap-3 items-center">
+              <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
+              <button type="button" onclick="resetForm()" class="px-4 py-2 border rounded">Clear</button>
             </div>
           </form>
         
+          <!-- Hidden iframe for Google Forms -->
           <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-        
-          <aside class="mt-6">
-            <h4 class="font-semibold">Booking policies</h4>
-            <p class="text-xs text-gray-600 mt-2">
-              Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.
-            </p>
-          </aside>
         </div>
     
       </div>
@@ -421,17 +426,17 @@
     </script>
     
     <script>
-      // ----------------------------
+      // -----------------------------
       // Sticky header
-      // ----------------------------
+      // -----------------------------
       window.addEventListener("scroll", () => {
         const header = document.getElementById("mainHeader");
         if (header) header.classList.toggle("sticky", window.scrollY > 20);
       });
     
-      // ----------------------------
+      // -----------------------------
       // Language toggle
-      // ----------------------------
+      // -----------------------------
       const btnDe = document.getElementById("btn-de");
       const btnEn = document.getElementById("btn-en");
       if (btnDe && btnEn) {
@@ -445,45 +450,40 @@
         });
       }
     
-      // ----------------------------
+      // -----------------------------
       // Availability Calendar
-      // ----------------------------
-      (function() {
+      // -----------------------------
+      (function () {
         const calendarContainer = document.getElementById("calendar");
         if (!calendarContainer) return;
     
-        // Booked date ranges as Date objects (start, end)
         const bookedRanges = [
-          [new Date(2025, 9, 3), new Date(2025, 9, 5)],  // Oct 3-5, 2025
-          [new Date(2025, 9, 10), new Date(2025, 9, 12)],
-          [new Date(2025, 9, 22), new Date(2025, 9, 25)]
+          [3, 5],
+          [10, 12],
+          [22, 25]
         ];
     
-        let selectedStart = null;  // Date object
-        let selectedEnd = null;    // Date object
+        let selectedStart = null;
+        let selectedEnd = null;
     
+        // Dynamic current month/year
         const today = new Date();
-        let currentMonth = today.getMonth();
+        let currentMonth = today.getMonth(); // 0-based
         let currentYear = today.getFullYear();
     
+        // Month names
         const monthNames = [
           "January","February","March","April","May","June",
           "July","August","September","October","November","December"
         ];
     
-        // ----------------------------
-        // Create navigation arrows
-        // ----------------------------
-        const navContainer = document.createElement("div");
-        navContainer.className = "flex justify-between items-center mb-4";
+        // Month navigation elements
+        const monthLabel = document.getElementById("monthLabel");
     
-        const monthLabel = document.createElement("div");
-        monthLabel.className = "font-semibold text-lg text-center flex-1";
-    
-        const leftArrow = document.createElement("button");
-        leftArrow.innerHTML = "&#8592;";
-        leftArrow.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
-        leftArrow.addEventListener("click", () => {
+        const prevArrow = document.createElement("button");
+        prevArrow.innerHTML = "&#8592;";
+        prevArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
+        prevArrow.addEventListener("click", () => {
           currentMonth--;
           if (currentMonth < 0) {
             currentMonth = 11;
@@ -492,10 +492,10 @@
           renderCalendar();
         });
     
-        const rightArrow = document.createElement("button");
-        rightArrow.innerHTML = "&#8594;";
-        rightArrow.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
-        rightArrow.addEventListener("click", () => {
+        const nextArrow = document.createElement("button");
+        nextArrow.innerHTML = "&#8594;";
+        nextArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
+        nextArrow.addEventListener("click", () => {
           currentMonth++;
           if (currentMonth > 11) {
             currentMonth = 0;
@@ -504,27 +504,17 @@
           renderCalendar();
         });
     
-        navContainer.appendChild(leftArrow);
-        navContainer.appendChild(monthLabel);
-        navContainer.appendChild(rightArrow);
-        calendarContainer.parentNode.insertBefore(navContainer, calendarContainer);
+        const navWrapper = document.createElement("div");
+        navWrapper.className = "flex justify-between items-center mb-2";
+        navWrapper.appendChild(prevArrow);
+        navWrapper.appendChild(monthLabel);
+        navWrapper.appendChild(nextArrow);
+        calendarContainer.parentNode.insertBefore(navWrapper, calendarContainer);
     
-        // ----------------------------
-        // Utility functions
-        // ----------------------------
-        function isSameDate(d1, d2) {
-          return d1.getFullYear() === d2.getFullYear() &&
-                 d1.getMonth() === d2.getMonth() &&
-                 d1.getDate() === d2.getDate();
-        }
-    
-        function isInRange(date, start, end) {
-          if (!start || !end) return false;
-          return date >= start && date <= end;
-        }
-    
-        function isBusyDay(date) {
-          return bookedRanges.some(([s,e]) => date >= s && date <= e);
+        function isBusyDay(dayNum, month, year) {
+          // Only check bookedRanges for current month (example)
+          // You can adapt for multi-month bookedRanges if needed
+          return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e && month === today.getMonth() && year === today.getFullYear());
         }
     
         function renderCalendar() {
@@ -549,21 +539,22 @@
           const firstDay = new Date(currentYear, currentMonth, 1).getDay();
           const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
+          // Empty cells for offset
           for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement("div");
             daysGrid.appendChild(empty);
           }
     
           for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-    
-            const busy = isBusyDay(dateObj);
-            const inRange = isInRange(dateObj, selectedStart, selectedEnd);
-            const singleSelected = selectedStart && !selectedEnd && isSameDate(dateObj, selectedStart);
+            const busy = isBusyDay(d, currentMonth, currentYear);
+            const inRange = selectedStart && selectedEnd && isDateInRange(d, currentMonth, currentYear);
+            const singleSelected = selectedStart && !selectedEnd && isSameDate(d, currentMonth, currentYear, selectedStart);
     
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
-            dayBtn.dataset.date = dateObj.toISOString();
+            dayBtn.dataset.day = d;
+            dayBtn.dataset.month = currentMonth;
+            dayBtn.dataset.year = currentYear;
             dayBtn.textContent = d;
             dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
     
@@ -584,31 +575,42 @@
           calendarContainer.appendChild(daysGrid);
         }
     
+        function isSameDate(day, month, year, ref) {
+          return day === ref.day && month === ref.month && year === ref.year;
+        }
+    
+        function isDateInRange(day, month, year) {
+          if (!selectedStart || !selectedEnd) return false;
+    
+          const start = new Date(selectedStart.year, selectedStart.month, selectedStart.day);
+          const end = new Date(selectedEnd.year, selectedEnd.month, selectedEnd.day);
+          const current = new Date(year, month, day);
+          return current >= start && current <= end;
+        }
+    
         function onDayClick(evt) {
-          const dateObj = new Date(evt.currentTarget.dataset.date);
+          const dayNum = Number(evt.currentTarget.dataset.day);
+          const month = Number(evt.currentTarget.dataset.month);
+          const year = Number(evt.currentTarget.dataset.year);
+    
+          const clickedDate = {day: dayNum, month, year};
     
           if (!selectedStart || (selectedStart && selectedEnd)) {
-            selectedStart = dateObj;
+            selectedStart = clickedDate;
             selectedEnd = null;
           } else {
-            if (dateObj < selectedStart) {
+            // ensure start < end
+            const startDate = new Date(selectedStart.year, selectedStart.month, selectedStart.day);
+            const clickedDateObj = new Date(year, month, dayNum);
+    
+            if (clickedDateObj < startDate) {
               selectedEnd = selectedStart;
-              selectedStart = dateObj;
-            } else if (isSameDate(dateObj, selectedStart)) {
-              selectedStart = null;
+              selectedStart = clickedDate;
+            } else if (clickedDateObj.getTime() === startDate.getTime()) {
+              selectedStart = clickedDate;
               selectedEnd = null;
             } else {
-              selectedEnd = dateObj;
-            }
-          }
-    
-          // Conflict check
-          if (selectedStart && selectedEnd) {
-            const conflict = bookedRanges.some(([s,e]) => !(e < selectedStart || s > selectedEnd));
-            if (conflict) {
-              alert("The selected range includes booked dates. Please choose a different range.");
-              selectedStart = null;
-              selectedEnd = null;
+              selectedEnd = clickedDate;
             }
           }
     
@@ -617,19 +619,32 @@
         }
     
         function updateBookingInputs() {
-          const checkinInput = document.getElementById("checkin");
-          const checkoutInput = document.getElementById("checkout");
+          const checkinInput = document.getElementById('checkin');
+          const checkoutInput = document.getElementById('checkout');
+          const formDisplay = document.getElementById('formDateDisplay');
+          const formHidden = document.getElementById('formDate');
+    
           if (!checkinInput || !checkoutInput) return;
     
-          function formatISO(d) {
-            if (!d) return "";
-            const mm = String(d.getMonth()+1).padStart(2,"0");
-            const dd = String(d.getDate()).padStart(2,"0");
-            return `${d.getFullYear()}-${mm}-${dd}`;
+          const formatDate = (dateObj) => {
+            if (!dateObj) return "";
+            const mm = String(dateObj.month + 1).padStart(2, "0");
+            const dd = String(dateObj.day).padStart(2, "0");
+            return `${dateObj.year}-${mm}-${dd}`;
+          };
+    
+          checkinInput.value = selectedStart ? formatDate(selectedStart) : "";
+          checkoutInput.value = selectedEnd ? formatDate(selectedEnd) : "";
+    
+          let displayVal = "";
+          if (selectedStart && selectedEnd) {
+            displayVal = `${formatDate(selectedStart)} → ${formatDate(selectedEnd)}`;
+          } else if (selectedStart) {
+            displayVal = formatDate(selectedStart);
           }
     
-          checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
-          checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
+          if (formDisplay) formDisplay.value = displayVal;
+          if (formHidden) formHidden.value = displayVal;
         }
     
         renderCalendar();
