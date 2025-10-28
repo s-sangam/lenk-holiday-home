@@ -408,39 +408,10 @@
           "July","August","September","October","November","December"
         ];
     
-        // Create header with prev/next buttons
-        const headerEl = document.createElement("div");
-        headerEl.className = "flex justify-between items-center mb-2";
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "←";
-        prevBtn.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "→";
-        nextBtn.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        // Month-year display (above calendar)
         const monthYearEl = document.createElement("div");
-        monthYearEl.className = "font-semibold text-lg";
-        headerEl.appendChild(prevBtn);
-        headerEl.appendChild(monthYearEl);
-        headerEl.appendChild(nextBtn);
-        calendarContainer.parentNode.insertBefore(headerEl, calendarContainer);
-    
-        prevBtn.addEventListener("click", () => {
-          currentMonth--;
-          if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-          }
-          renderCalendar();
-        });
-    
-        nextBtn.addEventListener("click", () => {
-          currentMonth++;
-          if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-          }
-          renderCalendar();
-        });
+        monthYearEl.className = "font-semibold text-lg text-center mb-2";
+        calendarContainer.parentNode.insertBefore(monthYearEl, calendarContainer);
     
         function isBusyDay(dayNum) {
           return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
