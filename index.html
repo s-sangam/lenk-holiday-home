@@ -368,12 +368,20 @@
       const btnEn = document.getElementById("btn-en");
       if (btnDe && btnEn) {
         btnDe.addEventListener("click", () => {
-          document.querySelectorAll("#title-de,#tagline-de,#about-text-de").forEach(el => el.classList.remove("hidden"));
-          document.querySelectorAll("#title-en,#tagline-en,#about-text-en").forEach(el => el.classList.add("hidden"));
+          document
+            .querySelectorAll("#title-de,#tagline-de,#about-text-de")
+            .forEach((el) => el.classList.remove("hidden"));
+          document
+            .querySelectorAll("#title-en,#tagline-en,#about-text-en")
+            .forEach((el) => el.classList.add("hidden"));
         });
         btnEn.addEventListener("click", () => {
-          document.querySelectorAll("#title-de,#tagline-de,#about-text-de").forEach(el => el.classList.add("hidden"));
-          document.querySelectorAll("#title-en,#tagline-en,#about-text-en").forEach(el => el.classList.remove("hidden"));
+          document
+            .querySelectorAll("#title-de,#tagline-de,#about-text-de")
+            .forEach((el) => el.classList.add("hidden"));
+          document
+            .querySelectorAll("#title-en,#tagline-en,#about-text-en")
+            .forEach((el) => el.classList.remove("hidden"));
         });
       }
     
@@ -382,13 +390,14 @@
       // ======================
       (function () {
         const calendarContainer = document.getElementById("calendar");
-        if (!calendarContainer) return;
+        const labelContainer = document.getElementById("monthLabel");
+        if (!calendarContainer || !labelContainer) return;
     
-        // Booked date ranges (day numbers)
+        // Example booked date ranges
         const bookedRanges = [
           [3, 5],
           [10, 12],
-          [22, 25]
+          [22, 25],
         ];
     
         let selectedStart = null;
@@ -401,29 +410,47 @@
     
         // Month names
         const monthNames = [
-          "January","February","March","April","May","June",
-          "July","August","September","October","November","December"
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
         ];
     
-        // Month-year display (above calendar)
-        const monthYearEl = document.createElement("div");
-        monthYearEl.className = "font-semibold text-lg text-center mb-2";
-        calendarContainer.parentNode.insertBefore(monthYearEl, calendarContainer);
+        // Create navigation (← and →)
+        const navContainer = document.createElement("div");
+        navContainer.className = "flex justify-between items-center mb-4";
     
+        const prevBtn = document.createElement("button");
+        prevBtn.innerHTML = "&larr;";
+        prevBtn.className = "text-2xl px-3 py-1 hover:text-sky-600 transition";
+    
+        const nextBtn = document.createElement("button");
+        nextBtn.innerHTML = "&rarr;";
+        nextBtn.className = "text-2xl px-3 py-1 hover:text-sky-600 transition";
+    
+        const monthText = document.createElement("div");
+        monthText.className = "font-semibold text-lg";
+    
+        navContainer.appendChild(prevBtn);
+        navContainer.appendChild(monthText);
+        navContainer.appendChild(nextBtn);
+        labelContainer.appendChild(navContainer);
+    
+        // --- Render Calendar ---
         function isBusyDay(dayNum) {
           return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
         }
     
         function renderCalendar() {
-          // Show month/year
-          monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+          // Update month text
+          monthText.textContent = `${monthNames[currentMonth]} ${currentYear}`;
     
+          // Clear calendar
           calendarContainer.innerHTML = "";
     
           // Weekdays header
           const weekRow = document.createElement("div");
-          weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
-          ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+          weekRow.className =
+            "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
+          ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].forEach((d) => {
             const el = document.createElement("div");
             el.textContent = d;
             el.className = "text-center";
@@ -438,7 +465,7 @@
           const firstDay = new Date(currentYear, currentMonth, 1).getDay();
           const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
-          // Blank cells for first day
+          // Blank cells
           for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement("div");
             daysGrid.appendChild(empty);
@@ -446,23 +473,41 @@
     
           for (let d = 1; d <= daysInMonth; d++) {
             const busy = isBusyDay(d);
-            const inRange = selectedStart !== null && selectedEnd !== null && d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
-            const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
+            const inRange =
+              selectedStart !== null &&
+              selectedEnd !== null &&
+              d >= Math.min(selectedStart, selectedEnd) &&
+              d <= Math.max(selectedStart, selectedEnd);
+            const singleSelected =
+              selectedStart !== null && selectedEnd === null && d === selectedStart;
     
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
             dayBtn.dataset.day = d;
             dayBtn.textContent = d;
-            dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
+            dayBtn.className =
+              "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
     
             if (busy) {
-              dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
+              dayBtn.classList.add(
+                "bg-red-500",
+                "text-white",
+                "cursor-not-allowed",
+                "border",
+                "border-red-600"
+              );
               dayBtn.disabled = true;
             } else if (inRange || singleSelected) {
-              dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
+              dayBtn.classList.add("bg-blue-600", "text-white", "border", "border-blue-700");
               dayBtn.addEventListener("click", onDayClick);
             } else {
-              dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
+              dayBtn.classList.add(
+                "bg-green-200",
+                "text-green-800",
+                "hover:bg-green-300",
+                "border",
+                "border-green-300"
+              );
               dayBtn.addEventListener("click", onDayClick);
             }
     
@@ -490,7 +535,7 @@
             }
           }
     
-          // Conflict check with booked ranges
+          // Conflict check
           if (selectedStart !== null && selectedEnd !== null) {
             const start = Math.min(selectedStart, selectedEnd);
             const end = Math.max(selectedStart, selectedEnd);
@@ -513,14 +558,34 @@
     
           const formatISO = (day) => {
             if (!day) return "";
-            const mm = String(currentMonth + 1).padStart(2,"0");
-            return `${currentYear}-${mm}-${String(day).padStart(2,"0")}`;
+            const mm = String(currentMonth + 1).padStart(2, "0");
+            return `${currentYear}-${mm}-${String(day).padStart(2, "0")}`;
           };
     
           checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
           checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
         }
     
+        // Navigation actions
+        prevBtn.addEventListener("click", () => {
+          currentMonth--;
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+          }
+          renderCalendar();
+        });
+    
+        nextBtn.addEventListener("click", () => {
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+          renderCalendar();
+        });
+    
+        // Initial render
         renderCalendar();
       })();
     </script>
