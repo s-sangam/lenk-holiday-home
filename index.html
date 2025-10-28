@@ -285,22 +285,49 @@
         class="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start"
       >
         <!-- Calendar -->
-        <div>
-          <h2 class="text-2xl font-semibold mb-6">Availability</h2>
-          <div id="calendar" class="grid grid-cols-7 gap-1 text-center"></div>
-          <div class="mt-4 text-center flex justify-center gap-6">
-            <span class="flex items-center gap-2"
-              ><span class="w-4 h-4 bg-green-500 rounded-full"></span>Available</span
+        <div class="bg-white rounded-2xl shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-center">Availability</h2>
+    
+          <!-- Month header -->
+          <div class="flex justify-between items-center mb-4">
+            <button
+              id="prevMonth"
+              class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
             >
-            <span class="flex items-center gap-2"
-              ><span class="w-4 h-4 bg-red-500 rounded-full"></span>Busy</span
+              ‹
+            </button>
+            <h3 id="monthLabel" class="text-lg font-medium"></h3>
+            <button
+              id="nextMonth"
+              class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
             >
+              ›
+            </button>
+          </div>
+    
+          <!-- Calendar grid -->
+          <div id="calendar" class="grid grid-cols-7 gap-2 text-center text-sm sm:text-base"></div>
+    
+          <!-- Legend -->
+          <div class="mt-4 flex justify-center gap-6 text-sm">
+            <span class="flex items-center gap-2">
+              <span class="w-4 h-4 bg-green-400 rounded-full border border-green-500"></span>
+              Available
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="w-4 h-4 bg-red-400 rounded-full border border-red-500"></span>
+              Busy
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="w-4 h-4 bg-blue-500 rounded-full border border-blue-700"></span>
+              Selected
+            </span>
           </div>
         </div>
-
+    
         <!-- Booking Form -->
-        <div id="booking">
-          <h2 class="text-2xl font-semibold mb-6">Book Now</h2>
+        <div id="booking" class="bg-white rounded-2xl shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-center">Book Now</h2>
           <form class="space-y-4">
             <div>
               <label class="block text-sm font-medium">Name</label>
@@ -321,7 +348,12 @@
             <div class="flex gap-4">
               <div class="flex-1">
                 <label class="block text-sm font-medium">Check-in</label>
-                <input type="date" id="checkin" readonly class="w-full border rounded p-2" />
+                <input
+                  type="date"
+                  id="checkin"
+                  readonly
+                  class="w-full border rounded p-2 bg-gray-100"
+                />
               </div>
               <div class="flex-1">
                 <label class="block text-sm font-medium">Check-out</label>
@@ -329,7 +361,7 @@
                   type="date"
                   id="checkout"
                   readonly
-                  class="w-full border rounded p-2"
+                  class="w-full border rounded p-2 bg-gray-100"
                 />
               </div>
             </div>
@@ -365,66 +397,69 @@
     </section>
 
     <script>
+      // ------------------------------
       // Sticky header
+      // ------------------------------
       window.addEventListener("scroll", () => {
         const header = document.getElementById("mainHeader");
         header.classList.toggle("sticky", window.scrollY > 20);
       });
     
-      // Language toggle
+      // ------------------------------
+      // Language toggle (DE / EN)
+      // ------------------------------
       const btnDe = document.getElementById("btn-de");
       const btnEn = document.getElementById("btn-en");
+    
       btnDe.addEventListener("click", () => {
-        document.querySelectorAll("#title-de,#tagline-de,#about-text-de").forEach(
-          (el) => el.classList.remove("hidden")
-        );
-        document.querySelectorAll("#title-en,#tagline-en,#about-text-en").forEach(
-          (el) => el.classList.add("hidden")
-        );
+        document
+          .querySelectorAll("#title-de, #tagline-de, #about-text-de")
+          .forEach((el) => el.classList.remove("hidden"));
+        document
+          .querySelectorAll("#title-en, #tagline-en, #about-text-en")
+          .forEach((el) => el.classList.add("hidden"));
       });
+    
       btnEn.addEventListener("click", () => {
-        document.querySelectorAll("#title-de,#tagline-de,#about-text-de").forEach(
-          (el) => el.classList.add("hidden")
-        );
-        document.querySelectorAll("#title-en,#tagline-en,#about-text-en").forEach(
-          (el) => el.classList.remove("hidden")
-        );
+        document
+          .querySelectorAll("#title-de, #tagline-de, #about-text-de")
+          .forEach((el) => el.classList.add("hidden"));
+        document
+          .querySelectorAll("#title-en, #tagline-en, #about-text-en")
+          .forEach((el) => el.classList.remove("hidden"));
       });
     
       // ------------------------------
-      // Robust calendar + selection
+      // Availability Calendar + Date Selection
       // ------------------------------
       (function () {
         const calendar = document.getElementById("calendar");
         if (!calendar) return;
-
-        // CONFIG: adjust these as needed
+    
         const calendarYear = 2025;
-        const calendarMonth = 10; // October (1-based for human, but we'll use for strings)
-        const daysInMonth = 30; // keep as your sample month length
-
-        // example bookedRanges (day numbers)
+        const calendarMonth = 10; // October (1-based)
+        const daysInMonth = 30;
+    
         const bookedRanges = [
           [3, 5],
           [10, 12],
           [22, 25],
         ];
-
-        let selectedStart = null; // numeric day (1..daysInMonth)
+    
+        let selectedStart = null;
         let selectedEnd = null;
-
-        // utility: is day in any booked range?
+    
         function isBusyDay(dayNum) {
           return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
         }
-
-        // render the calendar from scratch
+    
         function renderCalendar() {
           calendar.innerHTML = "";
-
-          // optional: header row with weekdays (if you want)
+    
+          // Weekday header row
           const headerRow = document.createElement("div");
-          headerRow.className = "grid grid-cols-7 gap-1 text-sm text-gray-600 mb-2";
+          headerRow.className =
+            "grid grid-cols-7 gap-1 text-sm font-semibold text-gray-600 mb-2";
           const week = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
           week.forEach((w) => {
             const c = document.createElement("div");
@@ -432,11 +467,11 @@
             headerRow.appendChild(c);
           });
           calendar.appendChild(headerRow);
-
-          // grid container for days
+    
+          // Calendar days grid
           const grid = document.createElement("div");
-          grid.className = "grid grid-cols-7 gap-1";
-
+          grid.className = "grid grid-cols-7 gap-2 sm:gap-3 text-center";
+    
           for (let d = 1; d <= daysInMonth; d++) {
             const isBusy = isBusyDay(d);
             const inSelectedRange =
@@ -444,97 +479,98 @@
               selectedEnd !== null &&
               d >= Math.min(selectedStart, selectedEnd) &&
               d <= Math.max(selectedStart, selectedEnd);
-            const isSelectedStartOnly = selectedStart !== null && selectedEnd === null && d === selectedStart;
-
-            // Build base element
+            const isSelectedStartOnly =
+              selectedStart !== null && selectedEnd === null && d === selectedStart;
+    
             const dayEl = document.createElement("button");
             dayEl.type = "button";
             dayEl.dataset.day = String(d);
             dayEl.textContent = d;
-            dayEl.className = "px-2 py-3 rounded text-sm focus:outline-none";
-
-            // Determine classes based on state (set className directly for determinism)
+            dayEl.className =
+              "px-2 py-3 rounded text-sm font-medium w-full aspect-square";
+    
             if (isBusy) {
-              dayEl.className += " bg-red-400 text-white cursor-not-allowed border border-red-500";
+              dayEl.classList.add(
+                "bg-red-500",
+                "text-white",
+                "cursor-not-allowed",
+                "border",
+                "border-red-600"
+              );
               dayEl.disabled = true;
             } else if (inSelectedRange || isSelectedStartOnly) {
-              // selected range or single selected day --> blue
-              dayEl.className += " bg-blue-600 text-white border border-blue-700";
+              dayEl.classList.add(
+                "bg-blue-600",
+                "text-white",
+                "border",
+                "border-blue-700"
+              );
               dayEl.addEventListener("click", onDayClick);
             } else {
-              // available day
-              dayEl.className +=
-                " bg-green-200 text-green-800 hover:bg-green-300 border border-green-300";
+              dayEl.classList.add(
+                "bg-green-200",
+                "text-green-800",
+                "hover:bg-green-300",
+                "border",
+                "border-green-300"
+              );
               dayEl.addEventListener("click", onDayClick);
             }
-
+    
             grid.appendChild(dayEl);
           }
-
+    
           calendar.appendChild(grid);
         }
-
-        // click handler for days
+    
         function onDayClick(evt) {
           const dayNum = Number(evt.currentTarget.dataset.day);
-          // if no start or both set (start+end) -> start new selection
+    
           if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
             selectedStart = dayNum;
             selectedEnd = null;
           } else {
-            // if only start is set
             if (dayNum < selectedStart) {
-              // swap: clicked before start -> new start is clicked day, end is old start
               selectedEnd = selectedStart;
               selectedStart = dayNum;
             } else if (dayNum === selectedStart) {
-              // clicking same day toggles (clear selection)
               selectedStart = dayNum;
               selectedEnd = null;
             } else {
-              // normal case: set end
               selectedEnd = dayNum;
             }
           }
-
-          // ensure selection does not include busy days:
+    
           if (selectedStart !== null && selectedEnd !== null) {
-            // if any busy day within selection -> cancel and show an alert (or trim)
             const start = Math.min(selectedStart, selectedEnd);
             const end = Math.max(selectedStart, selectedEnd);
             const conflict = bookedRanges.some(([s, e]) => !(e < start || s > end));
             if (conflict) {
-              alert("The selected range includes booked dates. Please choose a different range.");
-              // reset selection to start only
+              alert("❌ The selected range includes booked dates. Please choose another range.");
               selectedStart = dayNum;
               selectedEnd = null;
             }
           }
-
+    
           updateBookingInputs();
           renderCalendar();
         }
-
-        // update date inputs in booking form (expects id="checkin" and id="checkout")
+    
         function updateBookingInputs() {
           const checkinInput = document.getElementById("checkin");
           const checkoutInput = document.getElementById("checkout");
           if (!checkinInput || !checkoutInput) return;
-
+    
           function formatISO(day) {
             if (day === null) return "";
             const mm = String(calendarMonth).padStart(2, "0");
             return `${calendarYear}-${mm}-${String(day).padStart(2, "0")}`;
           }
-
-          // set checkin to selectedStart (if present)
+    
           checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
-
-          // if end present set checkout, else empty
           checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
         }
-
-        // initial render
+    
         renderCalendar();
       })();
     </script>
