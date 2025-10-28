@@ -413,163 +413,18 @@
       }
     
       // --------------------
-      // Availability Calendar
-      // --------------------
-      window.selectedStart = null;
-      window.selectedEnd = null;
-      window.currentMonth = new Date().getMonth();
-      window.currentYear = new Date().getFullYear();
-    
-      const calendarContainer = document.getElementById("calendar");
-      const monthYearEl = document.getElementById("monthLabel");
-    
-      const bookedRanges = [
-        [3, 5],
-        [10, 12],
-        [22, 25]
-      ];
-    
-      const monthNames = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-      ];
-    
-      function isBusyDay(dayNum) {
-        return bookedRanges.some(([s,e]) => dayNum >= s && dayNum <= e);
-      }
-    
-      window.renderCalendar = function() {
-        if (!calendarContainer) return;
-        if (monthYearEl) monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-    
-        calendarContainer.innerHTML = "";
-    
-        // Weekday headers
-        const weekRow = document.createElement("div");
-        weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
-        ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
-          const el = document.createElement("div");
-          el.textContent = d;
-          el.className = "text-center";
-          weekRow.appendChild(el);
-        });
-        calendarContainer.appendChild(weekRow);
-    
-        const daysGrid = document.createElement("div");
-        daysGrid.className = "grid grid-cols-7 gap-2";
-    
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-        // Blank cells
-        for (let i = 0; i < firstDay; i++) {
-          const empty = document.createElement("div");
-          daysGrid.appendChild(empty);
-        }
-    
-        for (let d = 1; d <= daysInMonth; d++) {
-          const busy = isBusyDay(d);
-          const inRange = selectedStart !== null && selectedEnd !== null && d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
-          const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
-    
-          const dayBtn = document.createElement("button");
-          dayBtn.type = "button";
-          dayBtn.dataset.day = d;
-          dayBtn.textContent = d;
-          dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
-    
-          if (busy) {
-            dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
-            dayBtn.disabled = true;
-          } else if (inRange || singleSelected) {
-            dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
-            dayBtn.addEventListener("click", onDayClick);
-          } else {
-            dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
-            dayBtn.addEventListener("click", onDayClick);
-          }
-    
-          daysGrid.appendChild(dayBtn);
-        }
-    
-        calendarContainer.appendChild(daysGrid);
-      }
-    
-      function onDayClick(evt) {
-        const dayNum = Number(evt.currentTarget.dataset.day);
-    
-        if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
-          selectedStart = dayNum;
-          selectedEnd = null;
-        } else {
-          if (dayNum < selectedStart) {
-            selectedEnd = selectedStart;
-            selectedStart = dayNum;
-          } else if (dayNum === selectedStart) {
-            selectedStart = null;
-            selectedEnd = null;
-          } else {
-            selectedEnd = dayNum;
-          }
-        }
-    
-        // Conflict check
-        if (selectedStart !== null && selectedEnd !== null) {
-          const start = Math.min(selectedStart, selectedEnd);
-          const end = Math.max(selectedStart, selectedEnd);
-          const conflict = bookedRanges.some(([s,e]) => !(e < start || s > end));
-          if (conflict) {
-            alert("Selected range includes booked dates. Please choose a different range.");
-            selectedStart = null;
-            selectedEnd = null;
-          }
-        }
-    
-        updateBookingInputs();
-        renderCalendar();
-      }
-    
-      // Navigation arrows
-      const leftArrow = document.createElement("button");
-      leftArrow.innerHTML = "&#8592;";
-      leftArrow.className = "absolute left-2 top-8 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300";
-      leftArrow.addEventListener("click", () => {
-        currentMonth--;
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        renderCalendar();
-      });
-    
-      const rightArrow = document.createElement("button");
-      rightArrow.innerHTML = "&#8594;";
-      rightArrow.className = "absolute right-2 top-8 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300";
-      rightArrow.addEventListener("click", () => {
-        currentMonth++;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        renderCalendar();
-      });
-    
-      const calendarWrapper = calendarContainer.parentNode;
-      calendarWrapper.style.position = "relative";
-      calendarWrapper.appendChild(leftArrow);
-      calendarWrapper.appendChild(rightArrow);
-    
-      renderCalendar();
-    
-      // --------------------
       // Booking Form Helpers
       // --------------------
-      window.updateBookingInputs = function() {
+      function updateBookingInputs(checkin, checkout) {
         const formDate = document.getElementById("formDate");
         const formDateDisplay = document.getElementById("formDateDisplay");
         if (!formDate || !formDateDisplay) return;
     
-        if (selectedStart && selectedEnd) {
-          const checkin = `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(selectedStart).padStart(2,"0")}`;
-          const checkout = `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(selectedEnd).padStart(2,"0")}`;
-          formDate.value = `${checkin} → ${checkout}`;
-          formDateDisplay.value = `${checkin} → ${checkout}`;
-        } else if (selectedStart) {
-          const checkin = `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(selectedStart).padStart(2,"0")}`;
+        if (checkin && checkout) {
+          const formatted = `${checkin} → ${checkout}`;
+          formDate.value = formatted;
+          formDateDisplay.value = formatted;
+        } else if (checkin) {
           formDate.value = checkin;
           formDateDisplay.value = checkin;
         } else {
@@ -578,44 +433,214 @@
         }
       }
     
-      window.showSubmissionMessage = function() {
-        const thankYouEl = document.getElementById("thank-you-message");
-        if (thankYouEl) thankYouEl.style.display = "block";
-        const bookingForm = document.getElementById("bookingForm");
-        if (bookingForm) bookingForm.style.display = "none";
+      function showSubmissionMessage() {
+        const msg = document.getElementById("thank-you-message");
+        if (msg) msg.style.display = "block";
       }
     
-      window.resetForm = function() {
+      function resetForm() {
+        const bookingForm = document.getElementById("bookingForm");
+        if (bookingForm) bookingForm.reset();
+        const msg = document.getElementById("thank-you-message");
+        if (msg) msg.style.display = "none";
         selectedStart = null;
         selectedEnd = null;
         renderCalendar();
+        updateBookingInputs(null, null);
+      }
     
-        const bookingForm = document.getElementById("bookingForm");
-        if (bookingForm) bookingForm.reset();
-        bookingForm.style.display = "block";
+      // --------------------
+      // Availability Calendar
+      // --------------------
+      const calendarContainer = document.getElementById("calendar");
+      if (calendarContainer) {
     
-        const formDate = document.getElementById("formDate");
-        const formDateDisplay = document.getElementById("formDateDisplay");
-        if (formDate) formDate.value = "";
-        if (formDateDisplay) formDateDisplay.value = "";
+        // --------------------
+        // Busy date ranges (hard-coded)
+        // --------------------
+        const busyRanges = [
+          { start: "2025-10-12", end: "2025-10-18" },
+          { start: "2025-10-25", end: "2025-10-31" }
+        ];
     
-        const thankYouEl = document.getElementById("thank-you-message");
-        if (thankYouEl) thankYouEl.style.display = "none";
+        let selectedStart = null;
+        let selectedEnd = null;
+    
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+    
+        const monthNames = [
+          "January","February","March","April","May","June",
+          "July","August","September","October","November","December"
+        ];
+    
+        const monthYearEl = document.getElementById("monthLabel");
+    
+        // --------------------
+        // Check if date is busy
+        // --------------------
+        function isBusyDate(date) {
+          return busyRanges.some(range => {
+            const start = new Date(range.start);
+            const end = new Date(range.end);
+            return date >= start && date <= end;
+          });
+        }
+    
+        // --------------------
+        // Check conflict
+        // --------------------
+        function checkConflict(start, end) {
+          return busyRanges.some(range => {
+            const rStart = new Date(range.start);
+            const rEnd = new Date(range.end);
+            return !(end < rStart || start > rEnd);
+          });
+        }
+    
+        // --------------------
+        // Render calendar
+        // --------------------
+        function renderCalendar() {
+          if (monthYearEl) monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+          calendarContainer.innerHTML = "";
+    
+          // Weekdays
+          const weekRow = document.createElement("div");
+          weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
+          ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
+            const el = document.createElement("div");
+            el.textContent = d;
+            el.className = "text-center";
+            weekRow.appendChild(el);
+          });
+          calendarContainer.appendChild(weekRow);
+    
+          // Days
+          const daysGrid = document.createElement("div");
+          daysGrid.className = "grid grid-cols-7 gap-2";
+    
+          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+          const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+          // Empty cells
+          for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement("div");
+            daysGrid.appendChild(empty);
+          }
+    
+          for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const busy = isBusyDate(dateObj);
+            const inRange = selectedStart && selectedEnd && dateObj >= selectedStart && dateObj <= selectedEnd;
+            const singleSelected = selectedStart && !selectedEnd && dateObj.getTime() === selectedStart.getTime();
+    
+            const dayBtn = document.createElement("button");
+            dayBtn.type = "button";
+            dayBtn.dataset.day = d;
+            dayBtn.textContent = d;
+            dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
+    
+            if (busy) {
+              dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
+              dayBtn.disabled = true;
+            } else if (inRange || singleSelected) {
+              dayBtn.classList.add("bg-blue-600","text-white","border","border-blue-700");
+              dayBtn.addEventListener("click", onDayClick);
+            } else {
+              dayBtn.classList.add("bg-green-200","text-green-800","hover:bg-green-300","border","border-green-300");
+              dayBtn.addEventListener("click", onDayClick);
+            }
+    
+            daysGrid.appendChild(dayBtn);
+          }
+    
+          calendarContainer.appendChild(daysGrid);
+        }
+    
+        // --------------------
+        // Day click
+        // --------------------
+        function onDayClick(evt) {
+          const day = Number(evt.currentTarget.dataset.day);
+          const clickedDate = new Date(currentYear, currentMonth, day);
+    
+          if (!selectedStart || (selectedStart && selectedEnd)) {
+            selectedStart = clickedDate;
+            selectedEnd = null;
+          } else {
+            if (clickedDate < selectedStart) {
+              selectedEnd = selectedStart;
+              selectedStart = clickedDate;
+            } else if (clickedDate.getTime() === selectedStart.getTime()) {
+              selectedStart = null;
+              selectedEnd = null;
+            } else {
+              selectedEnd = clickedDate;
+            }
+          }
+    
+          if (selectedStart && selectedEnd) {
+            if (checkConflict(selectedStart, selectedEnd)) {
+              alert("The selected range includes booked dates. Please choose a different range.");
+              selectedStart = null;
+              selectedEnd = null;
+            }
+          }
+    
+          const formatISO = (d) => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}` : null;
+          updateBookingInputs(formatISO(selectedStart), formatISO(selectedEnd));
+    
+          renderCalendar();
+        }
+    
+        // --------------------
+        // Navigation arrows
+        // --------------------
+        const leftArrow = document.createElement("button");
+        leftArrow.innerHTML = "&#8592;";
+        leftArrow.className = "absolute left-2 top-8 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        leftArrow.addEventListener("click", () => {
+          currentMonth--;
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+          }
+          renderCalendar();
+        });
+    
+        const rightArrow = document.createElement("button");
+        rightArrow.innerHTML = "&#8594;";
+        rightArrow.className = "absolute right-2 top-8 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        rightArrow.addEventListener("click", () => {
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+          renderCalendar();
+        });
+    
+        const calendarWrapper = calendarContainer.parentNode;
+        calendarWrapper.style.position = "relative";
+        calendarWrapper.appendChild(leftArrow);
+        calendarWrapper.appendChild(rightArrow);
+    
+        renderCalendar();
       }
     
       // --------------------
       // Booking Form Submission
       // --------------------
-      document.addEventListener("DOMContentLoaded", function() {
-        const bookingForm = document.getElementById("bookingForm");
-        if (bookingForm) {
-          bookingForm.addEventListener("submit", function() {
-            updateBookingInputs();      // ensure date hidden field is updated
-            showSubmissionMessage();    // show thank you message
-            // allow submission to Google Forms (do not preventDefault)
-          });
-        }
-      });
+      const bookingForm = document.getElementById("bookingForm");
+      if (bookingForm) {
+        bookingForm.addEventListener("submit", function(e){
+          e.preventDefault(); // prevent default to ensure date is set
+          showSubmissionMessage();
+          bookingForm.submit(); // continue submission to Google Forms
+        });
+      }
     </script>
 
     <script>
