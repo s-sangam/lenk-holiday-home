@@ -468,16 +468,15 @@
     
         // Dynamic current month/year
         const today = new Date();
-        let currentMonth = today.getMonth(); // 0-based
+        let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
     
-        // Month names
         const monthNames = [
           "January","February","March","April","May","June",
           "July","August","September","October","November","December"
         ];
     
-        // Month navigation elements
+        // Month label and navigation arrows
         const monthLabel = document.getElementById("monthLabel");
     
         const prevArrow = document.createElement("button");
@@ -485,10 +484,7 @@
         prevArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
         prevArrow.addEventListener("click", () => {
           currentMonth--;
-          if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-          }
+          if (currentMonth < 0) { currentMonth = 11; currentYear--; }
           renderCalendar();
         });
     
@@ -497,10 +493,7 @@
         nextArrow.className = "px-2 py-1 rounded hover:bg-gray-200";
         nextArrow.addEventListener("click", () => {
           currentMonth++;
-          if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-          }
+          if (currentMonth > 11) { currentMonth = 0; currentYear++; }
           renderCalendar();
         });
     
@@ -511,17 +504,14 @@
         navWrapper.appendChild(nextArrow);
         calendarContainer.parentNode.insertBefore(navWrapper, calendarContainer);
     
-        function isBusyDay(dayNum, month, year) {
-          // Only check bookedRanges for current month (example)
-          // You can adapt for multi-month bookedRanges if needed
-          return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e && month === today.getMonth() && year === today.getFullYear());
+        function isBusyDay(day, month, year) {
+          return bookedRanges.some(([s, e]) => day >= s && day <= e && month === today.getMonth() && year === today.getFullYear());
         }
     
         function renderCalendar() {
           monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
           calendarContainer.innerHTML = "";
     
-          // Weekdays header
           const weekRow = document.createElement("div");
           weekRow.className = "grid grid-cols-7 gap-2 text-sm font-semibold text-gray-600 mb-2";
           ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => {
@@ -532,14 +522,12 @@
           });
           calendarContainer.appendChild(weekRow);
     
-          // Days grid
           const daysGrid = document.createElement("div");
           daysGrid.className = "grid grid-cols-7 gap-2";
     
           const firstDay = new Date(currentYear, currentMonth, 1).getDay();
           const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
-          // Empty cells for offset
           for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement("div");
             daysGrid.appendChild(empty);
@@ -581,7 +569,6 @@
     
         function isDateInRange(day, month, year) {
           if (!selectedStart || !selectedEnd) return false;
-    
           const start = new Date(selectedStart.year, selectedStart.month, selectedStart.day);
           const end = new Date(selectedEnd.year, selectedEnd.month, selectedEnd.day);
           const current = new Date(year, month, day);
@@ -592,17 +579,14 @@
           const dayNum = Number(evt.currentTarget.dataset.day);
           const month = Number(evt.currentTarget.dataset.month);
           const year = Number(evt.currentTarget.dataset.year);
-    
           const clickedDate = {day: dayNum, month, year};
     
           if (!selectedStart || (selectedStart && selectedEnd)) {
             selectedStart = clickedDate;
             selectedEnd = null;
           } else {
-            // ensure start < end
             const startDate = new Date(selectedStart.year, selectedStart.month, selectedStart.day);
             const clickedDateObj = new Date(year, month, dayNum);
-    
             if (clickedDateObj < startDate) {
               selectedEnd = selectedStart;
               selectedStart = clickedDate;
@@ -621,34 +605,63 @@
         function updateBookingInputs() {
           const checkinInput = document.getElementById('checkin');
           const checkoutInput = document.getElementById('checkout');
-          const formDisplay = document.getElementById('formDateDisplay');
           const formHidden = document.getElementById('formDate');
     
-          if (!checkinInput || !checkoutInput) return;
+          if (!checkinInput || !checkoutInput || !formHidden) return;
     
-          const formatDate = (dateObj) => {
-            if (!dateObj) return "";
-            const mm = String(dateObj.month + 1).padStart(2, "0");
-            const dd = String(dateObj.day).padStart(2, "0");
-            return `${dateObj.year}-${mm}-${dd}`;
+          const formatDate = (d) => {
+            if (!d) return "";
+            const mm = String(d.month+1).padStart(2,"0");
+            const dd = String(d.day).padStart(2,"0");
+            return `${d.year}-${mm}-${dd}`;
           };
     
           checkinInput.value = selectedStart ? formatDate(selectedStart) : "";
           checkoutInput.value = selectedEnd ? formatDate(selectedEnd) : "";
     
           let displayVal = "";
-          if (selectedStart && selectedEnd) {
-            displayVal = `${formatDate(selectedStart)} → ${formatDate(selectedEnd)}`;
-          } else if (selectedStart) {
-            displayVal = formatDate(selectedStart);
-          }
+          if (selectedStart && selectedEnd) displayVal = `${formatDate(selectedStart)} → ${formatDate(selectedEnd)}`;
+          else if (selectedStart) displayVal = formatDate(selectedStart);
     
-          if (formDisplay) formDisplay.value = displayVal;
-          if (formHidden) formHidden.value = displayVal;
+          formHidden.value = displayVal;
         }
     
         renderCalendar();
       })();
+    
+      // -----------------------------
+      // Google Form submission handling
+      // -----------------------------
+      let submitted = false;
+    
+      const bookingForm = document.getElementById("bookingForm");
+      if (bookingForm) {
+        bookingForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+    
+          if (submitted) return;
+    
+          submitted = true;
+    
+          bookingForm.style.display = "none";
+          const thankYouMsg = document.getElementById("thank-you-message");
+          if (thankYouMsg) thankYouMsg.style.display = "block";
+        });
+      }
+    
+      function clearForm() {
+        const bookingForm = document.getElementById("bookingForm");
+        if (bookingForm) bookingForm.reset();
+        submitted = false;
+        bookingForm.style.display = "block";
+    
+        const thankYouMsg = document.getElementById("thank-you-message");
+        if (thankYouMsg) thankYouMsg.style.display = "none";
+      }
+    
+      function resetForm() {
+        clearForm();
+      }
     </script>
 
     <script>
