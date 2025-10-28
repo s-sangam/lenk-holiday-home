@@ -310,35 +310,55 @@
         </div>
     
         <!-- Booking Form -->
-        <div id="booking" class="bg-white rounded-2xl shadow-md p-6">
-          <h2 class="text-2xl font-semibold mb-6">Book Now</h2>
-          <form class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium">Name</label>
-              <input type="text" class="w-full border rounded p-2" placeholder="Your name" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Email</label>
-              <input type="email" class="w-full border rounded p-2" placeholder="you@example.com" />
-            </div>
-            <div class="flex gap-4">
-              <div class="flex-1">
-                <label class="block text-sm font-medium">Check-in</label>
-                <input type="date" id="checkin" readonly class="w-full border rounded p-2" />
+        <div id="booking" class="bg-white shadow rounded p-6 flex flex-col justify-between">
+          <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow mb-6" style="display:none;">
+            <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
+            <p>Thank you for your reservation inquiry. We'll get back to you within 24 hours.</p>
+            <button type="button" onclick="resetForm()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded">New Request</button>
+          </div>
+        
+          <form 
+            id="bookingForm"
+            action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScf3l0TBVvZNjUxTIiz6xy-OskpAK5YuVw7ncfaYraBhTQPiw/formResponse"
+            method="POST"
+            target="hidden_iframe"
+            onsubmit="submitted=true; document.getElementById('bookingForm').style.display='none'; return true;"
+          >
+            <input type="hidden" name="_subject" value="Reservation Inquiry for Chalet Strubel, Lenk">
+            <input type="hidden" name="entry.1408509440" id="formDate" value="">
+        
+            <div class="grid grid-cols-1 gap-3">
+              <label class="text-sm">Name
+                <input name="entry.1050908070" required class="mt-1 block w-full rounded border-gray-300 p-2">
+              </label>
+              <label class="text-sm">Email
+                <input name="entry.1473226173" type="email" required class="mt-1 block w-full rounded border-gray-300 p-2">
+              </label>
+              <label class="text-sm">Phone
+                <input name="entry.569286279" required class="mt-1 block w-full rounded border-gray-300 p-2">
+              </label>
+              <label class="text-sm">Dates
+                <input type="text" id="formDateDisplay" readonly class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Select dates from calendar">
+              </label>
+              <label class="text-sm">Message
+                <textarea name="entry.371541195" required rows="4" class="mt-1 block w-full rounded border-gray-300 p-2" placeholder="Any special requests, arrival time..."></textarea>
+              </label>
+        
+              <div class="flex gap-3 items-center">
+                <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded">Send request</button>
+                <button type="button" onclick="clearForm()" class="px-4 py-2 border rounded">Clear</button>
               </div>
-              <div class="flex-1">
-                <label class="block text-sm font-medium">Check-out</label>
-                <input type="date" id="checkout" readonly class="w-full border rounded p-2" />
-              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium">Message</label>
-              <textarea class="w-full border rounded p-2" rows="3" placeholder="Your message..."></textarea>
-            </div>
-            <button type="submit" class="bg-sky-700 text-white px-6 py-2 rounded shadow hover:bg-sky-800 transition">
-              Submit Booking Request
-            </button>
           </form>
+        
+          <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+        
+          <aside class="mt-6">
+            <h4 class="font-semibold">Booking policies</h4>
+            <p class="text-xs text-gray-600 mt-2">
+              Minimum stay: 5 nights (seasonal variations). Cancellation: see terms. Use the "Impressum & Privacy" link below for full legal text.
+            </p>
+          </aside>
         </div>
     
       </div>
@@ -356,6 +376,50 @@
       </div>
     </section>
 
+    <script>
+      // Updates the Google Forms hidden date field whenever the calendar selection changes
+      function updateGoogleFormDate() {
+        const checkin = document.getElementById('checkin').value;
+        const checkout = document.getElementById('checkout').value;
+        const display = document.getElementById('formDateDisplay');
+        const hidden = document.getElementById('formDate');
+    
+        if (checkin && checkout) {
+          const formatted = `${checkin} → ${checkout}`;
+          display.value = formatted;
+          hidden.value = formatted;
+        } else if (checkin) {
+          display.value = checkin;
+          hidden.value = checkin;
+        } else {
+          display.value = '';
+          hidden.value = '';
+        }
+      }
+    
+      // Hook into your existing calendar update function
+      const originalUpdateBookingInputs = updateBookingInputs;
+      updateBookingInputs = function() {
+        originalUpdateBookingInputs();
+        updateGoogleFormDate();
+      }
+    
+      function clearForm() {
+        document.getElementById('bookingForm').reset();
+        document.getElementById('formDateDisplay').value = '';
+        document.getElementById('formDate').value = '';
+        document.getElementById('bookingForm').style.display = 'block';
+        document.getElementById('thank-you-message').style.display = 'none';
+        selectedStart = null;
+        selectedEnd = null;
+        renderCalendar();
+      }
+    
+      function resetForm() {
+        clearForm();
+      }
+    </script>
+    
     <script>
       // ----------------------------
       // Sticky header
