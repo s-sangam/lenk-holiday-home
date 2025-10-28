@@ -357,17 +357,17 @@
     </section>
 
     <script>
-      // -----------------------
-      // Sticky Header
-      // -----------------------
+      // ----------------------------
+      // Sticky header
+      // ----------------------------
       window.addEventListener("scroll", () => {
         const header = document.getElementById("mainHeader");
         if (header) header.classList.toggle("sticky", window.scrollY > 20);
       });
     
-      // -----------------------
-      // Language Toggle
-      // -----------------------
+      // ----------------------------
+      // Language toggle
+      // ----------------------------
       const btnDe = document.getElementById("btn-de");
       const btnEn = document.getElementById("btn-en");
       if (btnDe && btnEn) {
@@ -381,51 +381,81 @@
         });
       }
     
-      // -----------------------
+      // ----------------------------
       // Availability Calendar
-      // -----------------------
-      (function () {
+      // ----------------------------
+      (function() {
         const calendarContainer = document.getElementById("calendar");
-        const monthLabel = document.getElementById("monthLabel");
-        if (!calendarContainer || !monthLabel) return;
+        if (!calendarContainer) return;
     
-        // Example booked date ranges (full Dates)
+        // Booked ranges
         const bookedRanges = [
-          [new Date(2025, 9, 3), new Date(2025, 9, 5)],
-          [new Date(2025, 9, 10), new Date(2025, 9, 12)],
-          [new Date(2025, 9, 22), new Date(2025, 9, 25)]
+          [3, 5],
+          [10, 12],
+          [22, 25]
         ];
     
-        // Track selection as full Dates
-        let selectedStartDate = null;
-        let selectedEndDate = null;
+        let selectedStart = null;
+        let selectedEnd = null;
     
-        // Current displayed month/year
-        let currentDate = new Date();
+        const today = new Date();
+        let currentMonth = today.getMonth(); // 0-based
+        let currentYear = today.getFullYear();
     
         const monthNames = [
           "January","February","March","April","May","June",
           "July","August","September","October","November","December"
         ];
     
-        function isBusyDate(date) {
-          return bookedRanges.some(([start, end]) => date >= start && date <= end);
-        }
+        // ----------------------------
+        // Create navigation arrows dynamically
+        // ----------------------------
+        const navContainer = document.createElement("div");
+        navContainer.className = "flex justify-between items-center mb-4";
     
-        function formatISO(date) {
-          if (!date) return "";
-          const yyyy = date.getFullYear();
-          const mm = String(date.getMonth() + 1).padStart(2, "0");
-          const dd = String(date.getDate()).padStart(2, "0");
-          return `${yyyy}-${mm}-${dd}`;
+        const monthLabel = document.createElement("div");
+        monthLabel.className = "font-semibold text-lg text-center flex-1";
+    
+        const leftArrow = document.createElement("button");
+        leftArrow.innerHTML = "&#8592;";
+        leftArrow.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        leftArrow.addEventListener("click", () => {
+          currentMonth--;
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+          }
+          renderCalendar();
+        });
+    
+        const rightArrow = document.createElement("button");
+        rightArrow.innerHTML = "&#8594;";
+        rightArrow.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        rightArrow.addEventListener("click", () => {
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+          renderCalendar();
+        });
+    
+        navContainer.appendChild(leftArrow);
+        navContainer.appendChild(monthLabel);
+        navContainer.appendChild(rightArrow);
+    
+        calendarContainer.parentNode.insertBefore(navContainer, calendarContainer);
+    
+        // ----------------------------
+        // Utility functions
+        // ----------------------------
+        function isBusyDay(dayNum, month = currentMonth, year = currentYear) {
+          // Only check for current month for simplicity
+          return bookedRanges.some(([s, e]) => dayNum >= s && dayNum <= e);
         }
     
         function renderCalendar() {
-          const year = currentDate.getFullYear();
-          const month = currentDate.getMonth();
-    
-          // Display month/year label
-          monthLabel.textContent = `${monthNames[month]} ${year}`;
+          monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
           calendarContainer.innerHTML = "";
     
           // Weekdays header
@@ -443,25 +473,25 @@
           const daysGrid = document.createElement("div");
           daysGrid.className = "grid grid-cols-7 gap-2";
     
-          const firstDay = new Date(year, month, 1).getDay();
-          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+          const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
-          // Blank cells for alignment
           for (let i = 0; i < firstDay; i++) {
-            daysGrid.appendChild(document.createElement("div"));
+            const empty = document.createElement("div");
+            daysGrid.appendChild(empty);
           }
     
           for (let d = 1; d <= daysInMonth; d++) {
-            const date = new Date(year, month, d);
+            const busy = isBusyDay(d);
+            const inRange = selectedStart !== null && selectedEnd !== null &&
+                            d >= Math.min(selectedStart, selectedEnd) && d <= Math.max(selectedStart, selectedEnd);
+            const singleSelected = selectedStart !== null && selectedEnd === null && d === selectedStart;
+    
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
+            dayBtn.dataset.day = d;
             dayBtn.textContent = d;
-            dayBtn.dataset.date = date.toISOString();
             dayBtn.className = "min-h-[56px] flex items-center justify-center rounded text-sm font-medium focus:outline-none w-full";
-    
-            const busy = isBusyDate(date);
-            const inRange = selectedStartDate && selectedEndDate && date >= selectedStartDate && date <= selectedEndDate;
-            const singleSelected = selectedStartDate && !selectedEndDate && date.getTime() === selectedStartDate.getTime();
     
             if (busy) {
               dayBtn.classList.add("bg-red-500","text-white","cursor-not-allowed","border","border-red-600");
@@ -481,30 +511,32 @@
         }
     
         function onDayClick(evt) {
-          const clickedDate = new Date(evt.currentTarget.dataset.date);
+          const dayNum = Number(evt.currentTarget.dataset.day);
     
-          if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-            selectedStartDate = clickedDate;
-            selectedEndDate = null;
+          if (selectedStart === null || (selectedStart !== null && selectedEnd !== null)) {
+            selectedStart = dayNum;
+            selectedEnd = null;
           } else {
-            if (clickedDate < selectedStartDate) {
-              selectedEndDate = selectedStartDate;
-              selectedStartDate = clickedDate;
-            } else if (clickedDate.getTime() === selectedStartDate.getTime()) {
-              selectedStartDate = null;
-              selectedEndDate = null;
+            if (dayNum < selectedStart) {
+              selectedEnd = selectedStart;
+              selectedStart = dayNum;
+            } else if (dayNum === selectedStart) {
+              selectedStart = null;
+              selectedEnd = null;
             } else {
-              selectedEndDate = clickedDate;
+              selectedEnd = dayNum;
             }
           }
     
-          // Check conflicts with bookedRanges
-          if (selectedStartDate && selectedEndDate) {
-            const conflict = bookedRanges.some(([start, end]) => !(end < selectedStartDate || start > selectedEndDate));
+          // Conflict check with booked ranges
+          if (selectedStart !== null && selectedEnd !== null) {
+            const start = Math.min(selectedStart, selectedEnd);
+            const end = Math.max(selectedStart, selectedEnd);
+            const conflict = bookedRanges.some(([s, e]) => !(e < start || s > end));
             if (conflict) {
-              alert("Selected range includes booked dates. Choose another range.");
-              selectedStartDate = null;
-              selectedEndDate = null;
+              alert("The selected range includes booked dates. Please choose a different range.");
+              selectedStart = null;
+              selectedEnd = null;
             }
           }
     
@@ -517,27 +549,16 @@
           const checkoutInput = document.getElementById("checkout");
           if (!checkinInput || !checkoutInput) return;
     
-          checkinInput.value = formatISO(selectedStartDate);
-          checkoutInput.value = formatISO(selectedEndDate);
+          const formatISO = (day) => {
+            if (!day) return "";
+            const mm = String(currentMonth + 1).padStart(2,"0");
+            return `${currentYear}-${mm}-${String(day).padStart(2,"0")}`;
+          };
+    
+          checkinInput.value = selectedStart ? formatISO(selectedStart) : "";
+          checkoutInput.value = selectedEnd ? formatISO(selectedEnd) : "";
         }
     
-        // Arrow navigation
-        function prevMonth() {
-          currentDate.setMonth(currentDate.getMonth() - 1);
-          renderCalendar();
-        }
-        function nextMonth() {
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          renderCalendar();
-        }
-    
-        // Attach navigation arrows
-        const prevArrow = document.getElementById("prevMonth");
-        const nextArrow = document.getElementById("nextMonth");
-        if (prevArrow) prevArrow.addEventListener("click", prevMonth);
-        if (nextArrow) nextArrow.addEventListener("click", nextMonth);
-    
-        // Initial render
         renderCalendar();
       })();
     </script>
