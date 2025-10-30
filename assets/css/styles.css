@@ -1,0 +1,16 @@
+/* styles.css - small custom rules that were inline previously */
+
+/* smooth scroll is already provided via tailwind but keep this */
+html { scroll-behavior: smooth; }
+
+/* header sticky style */
+header { transition: all .3s ease; }
+header.sticky {
+  background-color: rgba(255,255,255,0.95);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* calendar helper visuals (calendar.js uses these classes) */
+.calendar-button { cursor: pointer; transition: background .15s; }
+.calendar-button.disabled { cursor: not-allowed; opacity: .95; }
