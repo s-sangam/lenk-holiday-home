@@ -17,7 +17,11 @@
 
   <!-- App styles -->
   <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <!-- support langauage DE & EN -->
+  <script src="assets/js/lang.js" defer></script>
 </head>
+
 <body class="font-sans text-gray-800">
 
   <!-- HEADER -->
@@ -35,11 +39,11 @@
 
       <div class="flex items-center gap-4">
         <nav class="hidden md:flex items-center gap-6 text-gray-700 font-medium">
-          <a href="#about" class="hover:text-sky-600 transition">About</a>
-          <a href="#gallery" class="hover:text-sky-600 transition">Gallery</a>
-          <a href="#availability" class="hover:text-sky-600 transition">Availability</a>
-          <a href="#booking" class="hover:text-sky-600 transition">Booking</a>
-          <a href="#contact" class="hover:text-sky-600 transition">Contact</a>
+          <a href="#about" data-i18n="nav_about" class="hover:text-sky-600 transition">About</a>
+          <a href="#gallery" data-i18n="nav_gallery" class="hover:text-sky-600 transition">Gallery</a>
+          <a href="#availability" data-i18n="nav_availability" class="hover:text-sky-600 transition">Availability</a>
+          <a href="#booking" data-i18n="nav_booking" class="hover:text-sky-600 transition">Booking</a>
+          <a href="#contact" data-i18n="nav_contact" class="hover:text-sky-600 transition">Contact</a>
         </nav>
 
         <div id="langSwitch" class="flex">
@@ -69,7 +73,7 @@
   <!-- GALLERY -->
   <section id="gallery" class="mt-16 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto text-center">
-      <h2 class="text-2xl font-semibold mb-4">Gallery</h2>
+      <h2 data-i18n="section_gallery" class="text-2xl font-semibold mb-4">Gallery</h2>
       <p class="text-gray-600 mb-6">Explore the charm of Chalet Strubel — inside and out.</p>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="galleryGrid">
@@ -119,7 +123,7 @@
   <!-- ABOUT -->
   <section id="about" class="py-16">
     <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold mb-6">About the Property</h2>
+      <h2 data-i18n="section_about" class="text-2xl font-semibold mb-4">About the Property</h2>
       <p id="about-text-de" class="text-gray-700 leading-relaxed">
         Das charmante Chalet Strubel (Maya’s Huus) liegt in ruhiger Lage am
         Ende eines kleinen Fusswegs im Oberried an der Lenk. Umgeben von
@@ -165,7 +169,7 @@
     <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
       <div>
         <div class="bg-white rounded-2xl shadow-md p-6 max-w-md mx-auto w-full relative">
-          <h2 class="text-2xl font-semibold mb-4 text-center">Availability Calendar</h2>
+          <h2 data-i18n="section_availability" class="text-2xl font-semibold mb-4 text-center">Availability Calendar</h2>
           <div id="monthLabel" class="font-semibold text-lg text-center mb-4"></div>
           <div id="calendar"></div>
 
@@ -178,7 +182,7 @@
       </div>
 
       <div id="booking" class="bg-white shadow rounded p-6 flex flex-col justify-between">
-        <h2 class="text-2xl font-semibold mb-6 text-center">Reservation Inquiry</h2>
+        <h2 data-i18n="section_booking" class="text-2xl font-semibold mb-6 text-center">Reservation Inquiry</h2>
 
         <div id="thank-you-message" class="bg-green-100 text-green-800 p-6 rounded shadow mb-6 hidden">
           <h3 class="text-xl font-bold mb-2">Request Sent! ✅</h3>
@@ -232,7 +236,7 @@
   <!-- CONTACT -->
   <section id="contact" class="py-16">
     <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-2xl font-semibold mb-4">Contact</h2>
+      <h2 data-i18n="section_contact" class="text-2xl font-semibold mb-4">Contact</h2>
       <p>Phone: <a href="tel:+41788781998">+41 78 878 1998</a></p>
       <p>Email: <a href="mailto:ssangam@gmail.com">ssangam@gmail.com</a></p>
     </div>
