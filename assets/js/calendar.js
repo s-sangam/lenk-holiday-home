@@ -11,7 +11,7 @@
     // Hard-coded busy ranges (full ISO dates)
     const busyRanges = [
       { start: '2025-10-12', end: '2025-10-18' },
-      { start: '2025-10-25', end: '2025-10-31' }
+      { start: '2025-10-25', end: '2025-10-31' },
       { start: '2025-12-20', end: '2026-01-04' }
     ];
   
